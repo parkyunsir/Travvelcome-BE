@@ -13,6 +13,6 @@ public interface ChatRepository extends JpaRepository<ChatEntity, String> {
 
     // void deleteByUserId(String userId);
 
-    // landmarkId로 chat 찾기
+    // landmark별로 chat 내역 출력
     List<ChatEntity> findByLandmarkId(Long landmarkId);
 }

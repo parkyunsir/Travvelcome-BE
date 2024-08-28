@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.time.LocalDateTime;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,4 +38,6 @@ public class ChatEntity {
 
     private String sent; //내가 보낸 message
     private String received; //받은 message(gpt 답변)
+
+    private LocalDateTime date;
 }
