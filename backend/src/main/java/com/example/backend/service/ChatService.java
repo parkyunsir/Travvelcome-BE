@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -35,6 +36,7 @@ public class ChatService {
         validate(entity);
         String response = getCompletion(entity.getSent());
         entity.setReceived(response);
+        entity.setDate(LocalDateTime.now());
         return chatRepository.save(entity);
     }
 
