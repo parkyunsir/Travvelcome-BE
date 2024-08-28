@@ -1,0 +1,124 @@
+package com.example.backend.service;
+
+import com.example.backend.model.Landmark;
+import com.example.backend.repository.LandmarkRepository;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.stream.StreamSource;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+@Service
+@RequiredArgsConstructor
+public class LandmarkServiceImpl implements LandmarkService {
+
+  private final LandmarkRepository landmarkRepository;
+
+  private RestTemplate createRestTemplate() {
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.getMessageConverters()
+        .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+    return restTemplate;
+  }
+
+  public void fetchAndSaveLandmarks() {
+    String baseUrl = "https://apis.data.go.kr/B551011/Odii/themeBasedList?serviceKey=5tjj4/cu195FExR9HgtMLZE10SrTcISc0HT/lE/BwE06lF/1UjV573QgJOKJN99zuYTV5EtJpkGuYmVY7rRB0Q==";
+    int pageNo = 1;
+    int numOfRows = 300; // 최대값 설정
+    boolean hasMoreData = true;
+
+    // UTF-8 인코딩을 지원하는 RestTemplate 사용
+    RestTemplate restTemplate = createRestTemplate();
+
+    while (hasMoreData) {
+      String url = String.format("%s&numOfRows=%d&pageNo=%d&MobileOS=ETC&MobileApp=AppTest&langCode=ko", baseUrl, numOfRows, pageNo);
+      String xmlResponse = restTemplate.getForObject(url, String.class);
+
+      if (xmlResponse == null) {
+        throw new RuntimeException("Failed to fetch XML data from URL: " + url);
+      }
+
+      try {
+        // XML 파싱
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new InputSource(new StringReader(xmlResponse)));
+
+        NodeList items = doc.getElementsByTagName("item");
+        if (items.getLength() == 0) {
+          hasMoreData = false; // 더 이상 데이터가 없을 경우 종료
+        } else {
+          // 데이터를 저장하는 로직
+          saveLandmarks(items);
+          pageNo++; // 다음 페이지로 이동
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+        throw new RuntimeException("Error occurred while parsing and saving landmarks", e);
+      }
+    }
+  }
+
+  private void saveLandmarks(NodeList items) {
+    for (int i = 0; i < items.getLength(); i++) {
+      NodeList itemData = items.item(i).getChildNodes();
+      Landmark landmark = new Landmark();
+
+      for (int j = 0; j < itemData.getLength(); j++) {
+        String nodeName = itemData.item(j).getNodeName();
+        String nodeValue = itemData.item(j).getTextContent();
+
+        switch (nodeName) {
+          case "tid":
+            landmark.setTid(nodeValue);
+            break;
+          case "tlid":
+            landmark.setTlid(nodeValue);
+            break;
+          case "themeCategory":
+            landmark.setThemeCategory(nodeValue);
+            break;
+          case "addr1":
+            landmark.setAddr1(nodeValue);
+            break;
+          case "addr2":
+            landmark.setAddr2(nodeValue);
+            break;
+          case "title":
+            landmark.setTitle(nodeValue);
+            break;
+          case "mapX":
+            landmark.setMapX(Double.parseDouble(nodeValue));
+            break;
+          case "mapY":
+            landmark.setMapY(Double.parseDouble(nodeValue));
+            break;
+          case "langCheck":
+            landmark.setLangCheck(nodeValue);
+            break;
+          case "langCode":
+            landmark.setLangCode(nodeValue);
+            break;
+          case "imageUrl":
+            landmark.setImageUrl(nodeValue);
+            break;
+          case "createdtime":
+            landmark.setCreatedTime(nodeValue);
+            break;
+          case "modifiedtime":
+            landmark.setModifiedTime(nodeValue);
+            break;
+        }
+      }
+      landmarkRepository.save(landmark);
+      System.out.println("Landmark saved: " + landmark.getTitle());
+    }
+  }
+}
