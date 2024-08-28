@@ -6,7 +6,6 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.stream.StreamSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
@@ -70,6 +69,7 @@ public class LandmarkServiceImpl implements LandmarkService {
     for (int i = 0; i < items.getLength(); i++) {
       NodeList itemData = items.item(i).getChildNodes();
       Landmark landmark = new Landmark();
+      String addr1 = "";
 
       for (int j = 0; j < itemData.getLength(); j++) {
         String nodeName = itemData.item(j).getNodeName();
@@ -86,6 +86,7 @@ public class LandmarkServiceImpl implements LandmarkService {
             landmark.setThemeCategory(nodeValue);
             break;
           case "addr1":
+            addr1 = nodeValue; // addr1 값을 저장
             landmark.setAddr1(nodeValue);
             break;
           case "addr2":
@@ -117,8 +118,12 @@ public class LandmarkServiceImpl implements LandmarkService {
             break;
         }
       }
-      landmarkRepository.save(landmark);
-      System.out.println("Landmark saved: " + landmark.getTitle());
+
+      // addr1이 제주도인 경우에만 저장
+      if ("제주도".equals(addr1)) {
+        landmarkRepository.save(landmark);
+        System.out.println("Landmark saved: " + landmark.getTitle());
+      }
     }
   }
 }
