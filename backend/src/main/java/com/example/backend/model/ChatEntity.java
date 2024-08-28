@@ -21,9 +21,19 @@ public class ChatEntity {
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String chatId;
+    
+    // 랜드마크
+    private Long landmarkId;
 
-    // user
+    // 태그
+    private String tagId;
 
-    private String sent; //보냄
-    private String received; //받음(gpt message)
+    // 카테고리
+    private String categoryId;
+
+    // userId
+    // private String userId;
+
+    private String sent; //내가 보낸 message
+    private String received; //받은 message(gpt 답변)
 }
