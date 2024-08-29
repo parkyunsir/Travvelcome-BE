@@ -1,6 +1,7 @@
 package com.example.backend.model;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,4 +30,6 @@ public class Landmark {
   private String imageUrl;
   private String createdTime;
   private String modifiedTime;
+  @Column(nullable = true, columnDefinition = "TEXT")
+  private String description;
 }
