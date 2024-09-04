@@ -1,11 +1,16 @@
 package com.example.backend.model;
 
 
+import com.example.backend.model.enums.Category;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,4 +37,9 @@ public class Landmark {
   private String modifiedTime;
   @Column(nullable = true, columnDefinition = "TEXT")
   private String description;
+
+  @ElementCollection(targetClass = Category.class)
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = true)
+  private List<Category> categories;
 }
