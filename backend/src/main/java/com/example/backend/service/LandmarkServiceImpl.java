@@ -1,9 +1,13 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
 import com.example.backend.model.Landmark;
+import com.example.backend.model.enums.Category;
 import com.example.backend.repository.LandmarkRepository;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +31,7 @@ public class LandmarkServiceImpl implements LandmarkService {
     return restTemplate;
   }
 
+  @Override
   public void fetchAndSaveLandmarks() {
     String baseUrl = "https://apis.data.go.kr/B551011/Odii/themeBasedList?serviceKey=5tjj4/cu195FExR9HgtMLZE10SrTcISc0HT/lE/BwE06lF/1UjV573QgJOKJN99zuYTV5EtJpkGuYmVY7rRB0Q==";
     int pageNo = 1;
@@ -63,6 +68,22 @@ public class LandmarkServiceImpl implements LandmarkService {
         throw new RuntimeException("Error occurred while parsing and saving landmarks", e);
       }
     }
+  }
+
+  @Override
+  public List<LandmarkPreViewDTO> searchLandmark(String keyword) {
+    List<Landmark> landmarks = landmarkRepository.findByTitleContainingOrDescriptionContaining(keyword, keyword);
+    return landmarks.stream()
+        .map(landmark -> {
+          return LandmarkPreViewDTO.builder()
+              .landmarkId(landmark.getId())
+              .title(landmark.getTitle())
+              .description(landmark.getDescription())
+              .categories(landmark.getCategories())
+              .imageUrl(landmark.getImageUrl())
+              .build();
+        })
+        .collect(Collectors.toList());
   }
 
   private void saveLandmarks(NodeList items) {
