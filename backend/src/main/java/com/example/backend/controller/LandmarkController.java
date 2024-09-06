@@ -34,9 +34,10 @@ public class LandmarkController {
 
   @Operation(summary = "랜드마크 목록 조회 API", description = "랜드마크 리스트 페이지에서의 목록 조회 API입니다. category(nature, history, culture)")
   @GetMapping("")
-  public List<LandmarkPreViewDTO> getLandmarks(@RequestParam(name = "category", required = false) String category,
+  public ApiResponse<List<LandmarkPreViewDTO>> getLandmarks(@RequestParam(name = "category", required = false) String category,
       @RequestParam(name = "interest", required = false) List<Category> interests) {
-    return landmarkService.getLandmarks(category, interests);
+    List<LandmarkPreViewDTO> result = landmarkService.getLandmarks(category, interests);
+    return ApiResponse.onSuccess(result);
   }
 
 }

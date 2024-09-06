@@ -1,5 +1,7 @@
 package com.example.backend.service;
 
+import com.example.backend.apiPayload.code.status.ErrorStatus;
+import com.example.backend.apiPayload.exception.handler.TempHandler;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
 import com.example.backend.model.Landmark;
 import com.example.backend.model.enums.Category;
@@ -111,7 +113,7 @@ public class LandmarkServiceImpl implements LandmarkService {
           ));
           break;
         default:
-          throw new IllegalArgumentException("Invalid category: " + category);
+          throw new TempHandler(ErrorStatus.INVALID_CATEGORY);
       }
     }
     List<Landmark> landmarkList = new ArrayList<>();
