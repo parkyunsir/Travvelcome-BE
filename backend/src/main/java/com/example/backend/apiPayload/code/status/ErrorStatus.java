@@ -20,7 +20,7 @@ public enum ErrorStatus implements BaseErrorCode {
   MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4001", "사용자가 없습니다."),
 
   // 랜드마크 관련 에러
-  INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "LANDMARK4001", "잘못된 카테고리입니다.");
+  INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "LANDMARK4001", "잘못된 카테고리입니다. (nature, history, culture) 중에 입력해주세요.");
 
   private final HttpStatus httpStatus;
   private final String code;

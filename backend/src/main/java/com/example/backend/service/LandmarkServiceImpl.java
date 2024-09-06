@@ -78,15 +78,7 @@ public class LandmarkServiceImpl implements LandmarkService {
   public List<LandmarkPreViewDTO> searchLandmark(String keyword) {
     List<Landmark> landmarks = landmarkRepository.findByTitleContainingOrDescriptionContaining(keyword, keyword);
     return landmarks.stream()
-        .map(landmark -> {
-          return LandmarkPreViewDTO.builder()
-              .landmarkId(landmark.getId())
-              .title(landmark.getTitle())
-              .description(landmark.getDescription())
-              .categories(landmark.getCategories())
-              .imageUrl(landmark.getImageUrl())
-              .build();
-        })
+        .map(this::convertToDTO)
         .collect(Collectors.toList());
   }
 
@@ -95,57 +87,52 @@ public class LandmarkServiceImpl implements LandmarkService {
     List<Category> categoriesToFilter = new ArrayList<>();
 
     if (category != null) {
-      // 상위 카테고리에 따른 세부 카테고리 추가
-      switch (category.toLowerCase()) {
-        case "nature":
-          categoriesToFilter.addAll(Arrays.asList(
-              Category.MOUNTAIN, Category.BEACH, Category.TRAIL, Category.ARBORETUM, Category.PARK, Category.SCENERY
-          ));
-          break;
-        case "history":
-          categoriesToFilter.addAll(Arrays.asList(
-              Category.MUSEUM, Category.PALACE, Category.HISTORIC_SITE, Category.FOLK_VILLAGE, Category.TRADITIONAL_EXPERIENCE
-          ));
-          break;
-        case "culture":
-          categoriesToFilter.addAll(Arrays.asList(
-              Category.LOCAL_CULTURE, Category.HUMANITIES, Category.ART_GALLERY, Category.RELIGIOUS_SITE, Category.STORY
-          ));
-          break;
-        default:
-          throw new TempHandler(ErrorStatus.INVALID_CATEGORY);
-      }
-    }
-    List<Landmark> landmarkList = new ArrayList<>();
-    if (interests != null && !interests.isEmpty()) {
-      landmarkList = landmarkRepository.findByCategoriesIn(interests);
-      return landmarkList.stream()
-          .map(landmark -> {
-            return LandmarkPreViewDTO.builder()
-                .landmarkId(landmark.getId())
-                .title(landmark.getTitle())
-                .description(landmark.getDescription())
-                .categories(landmark.getCategories())
-                .imageUrl(landmark.getImageUrl())
-                .build();
-          })
-          .collect(Collectors.toList());
+      categoriesToFilter = getCategoriesByMainCategory(category);
     }
 
-    landmarkList = landmarkRepository.findByCategoriesIn(categoriesToFilter);
+    List<Landmark> landmarkList = new ArrayList<>();
+
+    if (interests != null && !interests.isEmpty()) {
+      landmarkList = landmarkRepository.findByCategoriesIn(interests);
+    } else if (!categoriesToFilter.isEmpty()) {
+      landmarkList = landmarkRepository.findByCategoriesIn(categoriesToFilter);
+    } else {
+      landmarkList = landmarkRepository.findAll();
+    }
+
     return landmarkList.stream()
-        .map(landmark -> {
-          return LandmarkPreViewDTO.builder()
-              .landmarkId(landmark.getId())
-              .title(landmark.getTitle())
-              .description(landmark.getDescription())
-              .categories(landmark.getCategories())
-              .imageUrl(landmark.getImageUrl())
-              .build();
-        })
+        .map(this::convertToDTO)
         .collect(Collectors.toList());
   }
 
+  private List<Category> getCategoriesByMainCategory(String category) {
+    switch (category.toLowerCase()) {
+      case "nature":
+        return Arrays.asList(
+            Category.MOUNTAIN, Category.BEACH, Category.TRAIL, Category.ARBORETUM, Category.PARK, Category.SCENERY
+        );
+      case "history":
+        return Arrays.asList(
+            Category.MUSEUM, Category.PALACE, Category.HISTORIC_SITE, Category.FOLK_VILLAGE, Category.TRADITIONAL_EXPERIENCE
+        );
+      case "culture":
+        return Arrays.asList(
+            Category.LOCAL_CULTURE, Category.HUMANITIES, Category.ART_GALLERY, Category.RELIGIOUS_SITE, Category.STORY
+        );
+      default:
+        throw new TempHandler(ErrorStatus.INVALID_CATEGORY);
+    }
+  }
+
+  private LandmarkPreViewDTO convertToDTO(Landmark landmark) {
+    return LandmarkPreViewDTO.builder()
+        .landmarkId(landmark.getId())
+        .title(landmark.getTitle())
+        .description(landmark.getDescription())
+        .categories(landmark.getCategories())
+        .imageUrl(landmark.getImageUrl())
+        .build();
+  }
 
   private void saveLandmarks(NodeList items) {
     for (int i = 0; i < items.getLength(); i++) {
