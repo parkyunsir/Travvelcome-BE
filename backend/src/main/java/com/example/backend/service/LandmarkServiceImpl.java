@@ -6,6 +6,8 @@ import com.example.backend.model.enums.Category;
 import com.example.backend.repository.LandmarkRepository;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilder;
@@ -85,6 +87,63 @@ public class LandmarkServiceImpl implements LandmarkService {
         })
         .collect(Collectors.toList());
   }
+
+  @Override
+  public List<LandmarkPreViewDTO> getLandmarks(String category, List<Category> interests) {
+    List<Category> categoriesToFilter = new ArrayList<>();
+
+    if (category != null) {
+      // 상위 카테고리에 따른 세부 카테고리 추가
+      switch (category.toLowerCase()) {
+        case "nature":
+          categoriesToFilter.addAll(Arrays.asList(
+              Category.MOUNTAIN, Category.BEACH, Category.TRAIL, Category.ARBORETUM, Category.PARK, Category.SCENERY
+          ));
+          break;
+        case "history":
+          categoriesToFilter.addAll(Arrays.asList(
+              Category.MUSEUM, Category.PALACE, Category.HISTORIC_SITE, Category.FOLK_VILLAGE, Category.TRADITIONAL_EXPERIENCE
+          ));
+          break;
+        case "culture":
+          categoriesToFilter.addAll(Arrays.asList(
+              Category.LOCAL_CULTURE, Category.HUMANITIES, Category.ART_GALLERY, Category.RELIGIOUS_SITE, Category.STORY
+          ));
+          break;
+        default:
+          throw new IllegalArgumentException("Invalid category: " + category);
+      }
+    }
+    List<Landmark> landmarkList = new ArrayList<>();
+    if (interests != null && !interests.isEmpty()) {
+      landmarkList = landmarkRepository.findByCategoriesIn(interests);
+      return landmarkList.stream()
+          .map(landmark -> {
+            return LandmarkPreViewDTO.builder()
+                .landmarkId(landmark.getId())
+                .title(landmark.getTitle())
+                .description(landmark.getDescription())
+                .categories(landmark.getCategories())
+                .imageUrl(landmark.getImageUrl())
+                .build();
+          })
+          .collect(Collectors.toList());
+    }
+
+    landmarkList = landmarkRepository.findByCategoriesIn(categoriesToFilter);
+    return landmarkList.stream()
+        .map(landmark -> {
+          return LandmarkPreViewDTO.builder()
+              .landmarkId(landmark.getId())
+              .title(landmark.getTitle())
+              .description(landmark.getDescription())
+              .categories(landmark.getCategories())
+              .imageUrl(landmark.getImageUrl())
+              .build();
+        })
+        .collect(Collectors.toList());
+  }
+
 
   private void saveLandmarks(NodeList items) {
     for (int i = 0; i < items.getLength(); i++) {
