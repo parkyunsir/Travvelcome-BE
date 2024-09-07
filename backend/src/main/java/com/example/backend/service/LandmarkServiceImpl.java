@@ -105,6 +105,18 @@ public class LandmarkServiceImpl implements LandmarkService {
         .collect(Collectors.toList());
   }
 
+  @Override
+  public List<LandmarkPreViewDTO> categoryLandmark(Category category) {
+    if (category == null) {
+      throw new TempHandler(ErrorStatus.NULL_CATEGORY);
+    }
+    List<Landmark> landmarkList = landmarkRepository.findByCategoriesContaining(category);
+
+    return landmarkList.stream()
+        .map(this::convertToDTO)
+        .collect(Collectors.toList());
+  }
+
   private List<Category> getCategoriesByMainCategory(String category) {
     switch (category.toLowerCase()) {
       case "nature":

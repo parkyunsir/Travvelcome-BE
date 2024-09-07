@@ -40,4 +40,11 @@ public class LandmarkController {
     return ApiResponse.onSuccess(result);
   }
 
+  @Operation(summary = "랜드마크 카테고리 검색 API", description = "랜드마크 리스트 페이지에서의 카테고리 검색 API입니다. 카테고리 RequestParam 입니다!")
+  @GetMapping("/category")
+  public ApiResponse<List<LandmarkPreViewDTO>> categoryLandmark(@RequestParam("category") Category category) {
+    List<LandmarkPreViewDTO> result = landmarkService.categoryLandmark(category);
+    return ApiResponse.onSuccess(result);
+  }
+
 }

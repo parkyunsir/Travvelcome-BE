@@ -11,4 +11,6 @@ public interface LandmarkService {
   List<LandmarkPreViewDTO> searchLandmark(String keyword);
 
   List<LandmarkPreViewDTO> getLandmarks(String category, List<Category> interests);
+
+  List<LandmarkPreViewDTO> categoryLandmark(Category category);
 }

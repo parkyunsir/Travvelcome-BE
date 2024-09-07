@@ -11,4 +11,6 @@ public interface LandmarkRepository extends JpaRepository<Landmark, Long> {
   List<Landmark> findByTitleContainingOrDescriptionContaining(String keyword, String keyword1);
 
   List<Landmark> findByCategoriesIn(List<Category> interests);
+
+  List<Landmark> findByCategoriesContaining(Category category);
 }
