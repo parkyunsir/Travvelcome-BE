@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import com.example.backend.apiPayload.code.status.ErrorStatus;
 import com.example.backend.apiPayload.exception.handler.TempHandler;
+import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
 import com.example.backend.model.Landmark;
 import com.example.backend.model.enums.Category;
@@ -115,6 +116,23 @@ public class LandmarkServiceImpl implements LandmarkService {
     return landmarkList.stream()
         .map(this::convertToDTO)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public LandmarkFindDTO getLandmarkFind(Long landmarkId) {
+    Landmark landmark = landmarkRepository.findById(landmarkId)
+        .orElseThrow(() -> new TempHandler(ErrorStatus.LANDMARK_NOT_FOUND));
+    LandmarkFindDTO landmarkFindDTO = LandmarkFindDTO.builder()
+        .landmarkId(landmark.getId())
+        .title(landmark.getTitle())
+        .description(landmark.getDescription())
+        .categories(landmark.getCategories())
+        .imageUrl(landmark.getImageUrl())
+        .addr1(landmark.getAddr1())
+        .addr2(landmark.getAddr2())
+        .build();
+
+    return landmarkFindDTO;
   }
 
   private List<Category> getCategoriesByMainCategory(String category) {

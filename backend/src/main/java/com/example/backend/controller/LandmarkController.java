@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.apiPayload.ApiResponse;
+import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
 import com.example.backend.model.enums.Category;
 import com.example.backend.service.LandmarkService;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +46,13 @@ public class LandmarkController {
   @GetMapping("/category")
   public ApiResponse<List<LandmarkPreViewDTO>> categoryLandmark(@RequestParam("category") Category category) {
     List<LandmarkPreViewDTO> result = landmarkService.categoryLandmark(category);
+    return ApiResponse.onSuccess(result);
+  }
+
+  @Operation(summary = "랜드마크 발견 페이지 조회 API", description = "랜드마크 발견 페이지 조회 API입니다. 랜드마크 아이디(landmarkId) PathVariable 입니다! ")
+  @GetMapping("/find/{landmarkId}")
+  public ApiResponse<LandmarkFindDTO> getLandmarkFind(@PathVariable("landmarkId") Long landmarkId) {
+    LandmarkFindDTO result = landmarkService.getLandmarkFind(landmarkId);
     return ApiResponse.onSuccess(result);
   }
 

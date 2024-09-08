@@ -23,4 +23,18 @@ public class LandmarkResponseDTO {
     String imageUrl;
   }
 
+  @Builder
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class LandmarkFindDTO {
+    Long landmarkId;
+    String title;
+    String description;
+    List<Category> categories;
+    String imageUrl;
+    String addr1;
+    String addr2;
+  }
+
 }
