@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -25,7 +26,7 @@ public class KakaoService {
     @Autowired
     public KakaoService(@Value("${kakao.client.id}") String clientId) {
         this.clientId = clientId;
-        KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
+        KAUTH_TOKEN_URL_HOST = "https://kauth.kakao.com";
         KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
     }
 
@@ -56,9 +57,6 @@ public class KakaoService {
 
         return kakaoTokenResponseDto.getAccessToken();
     }
-
-
-
 
     public KakaoUserInfoResponseDto getUserInfo(String accessToken) {
 

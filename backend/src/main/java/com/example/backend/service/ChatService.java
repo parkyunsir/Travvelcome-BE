@@ -49,7 +49,7 @@ public class ChatService {
         // 이전 질문, 답변 받아와서 기억하기
         for (ChatEntity entity : entities) {
             String request = entity.getSent();
-            String response = entity.getReceived().replace("\\", ""); // 역슬래시 제거
+            String response = entity.getReceived().replace("\n", ""); // 역슬래시 제거
 
             contentBuilder.append("사용자가 '")
                     .append(request)
