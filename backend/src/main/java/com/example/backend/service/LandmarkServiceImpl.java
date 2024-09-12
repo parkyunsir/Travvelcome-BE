@@ -135,6 +135,35 @@ public class LandmarkServiceImpl implements LandmarkService {
     return landmarkFindDTO;
   }
 
+  @Override
+  public List<LandmarkPreViewDTO> getCloseLandmarks(double mapX, double mapY) {
+    double radius = 1.0; // 조회할 반경 (km)
+
+    // Haversine 공식에 따른 거리 계산을 통해 가까운 랜드마크들을 조회
+    List<Landmark> closeLandmarks = landmarkRepository.findAll().stream()
+        .filter(landmark -> calculateDistance(mapX, mapY, landmark.getMapX(), landmark.getMapY()) <= radius)
+        .collect(Collectors.toList());
+
+    return closeLandmarks.stream()
+        .map(this::convertToDTO)
+        .collect(Collectors.toList());
+  }
+
+  // Haversine 공식을 사용한 거리 계산 (단위: km)
+  private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    final int EARTH_RADIUS = 6371; // 지구 반경 (단위: km)
+
+    double latDistance = Math.toRadians(lat2 - lat1);
+    double lonDistance = Math.toRadians(lon2 - lon1);
+    double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+        * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return EARTH_RADIUS * c; // 두 지점 사이의 거리 (km)
+  }
+
+
   private List<Category> getCategoriesByMainCategory(String category) {
     switch (category.toLowerCase()) {
       case "nature":

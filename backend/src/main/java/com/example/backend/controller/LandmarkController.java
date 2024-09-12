@@ -56,4 +56,11 @@ public class LandmarkController {
     return ApiResponse.onSuccess(result);
   }
 
+  @Operation(summary = "랜드마크 위치기반 조회 API", description = "내 주변 좌표를 기반으로 랜드마크를 조회하는 기능입니다.")
+  @GetMapping("/close")
+  public ApiResponse<List<LandmarkPreViewDTO>> getCloseLandmarks(@RequestParam(name = "mapX") double mapX, @RequestParam(name = "mapY") double mapY) {
+    List<LandmarkPreViewDTO> result = landmarkService.getCloseLandmarks(mapX, mapY);
+    return ApiResponse.onSuccess(result);
+  }
+
 }

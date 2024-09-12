@@ -16,4 +16,6 @@ public interface LandmarkService {
   List<LandmarkPreViewDTO> categoryLandmark(Category category);
 
   LandmarkFindDTO getLandmarkFind(Long landmarkId);
+
+  List<LandmarkPreViewDTO> getCloseLandmarks(double mapX, double mapY);
 }
