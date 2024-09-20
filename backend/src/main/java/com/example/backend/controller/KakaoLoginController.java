@@ -1,33 +1,44 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.KakaoUserInfoResponseDto;
+import com.example.backend.dto.KakaoUserDto;
 import com.example.backend.service.KakaoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+
+// 추후에 login.html 파일 지우고 리액트와 연결시키기
 
 @Slf4j
-@RestController
+//@RestController
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("")
 public class KakaoLoginController {
 
     private final KakaoService kakaoService;
 
-    @GetMapping("/callback")
-    public ResponseEntity<?> callback(@RequestParam("code") String code) {
-        String accessToken = kakaoService.getAccessTokenFromKakao(code);
+    @Value("${kakao.client.id}")
+    private String clientId;
 
-        KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(accessToken);
+    @Value("${kakao.redirect.uri}")
+    private String redirectUri;
 
-        // User 로그인, 또는 회원가입 로직 추가
-        return new ResponseEntity<>(HttpStatus.OK);
+    @GetMapping("/login") // 로그인 화면 & token 발급 과정
+    public String loginPage(Model model) {
+        String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id="+clientId+"&redirect_uri="+redirectUri;
+        model.addAttribute("location", location);
+
+        return "login";
+    }
+
+    @GetMapping("/callback") // redirect uri로 code 받기
+    public ResponseEntity<?> callback() {
+
+        return ResponseEntity.ok().build(); // 메인 화면이 될 예정
     }
 }

@@ -1,7 +1,8 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.KakaoTokenResponseDto;
-import com.example.backend.dto.KakaoUserInfoResponseDto;
+import com.example.backend.dto.KakaoUserDto;
+import com.example.backend.dto.UsersDTO;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,9 @@ public class KakaoService {
     private String clientId;
     private final String KAUTH_TOKEN_URL_HOST ;
     private final String KAUTH_USER_URL_HOST;
+
+    @Autowired
+    UsersService usersService;
 
     @Autowired
     public KakaoService(@Value("${kakao.client.id}") String clientId) {
@@ -49,18 +53,16 @@ public class KakaoService {
                 .block();
 
 
-        log.info(" [Kakao Service] Access Token ------> {}", kakaoTokenResponseDto.getAccessToken());
-        log.info(" [Kakao Service] Refresh Token ------> {}", kakaoTokenResponseDto.getRefreshToken());
-        //제공 조건: OpenID Connect가 활성화 된 앱의 토큰 발급 요청인 경우 또는 scope에 openid를 포함한 추가 항목 동의 받기 요청을 거친 토큰 발급 요청인 경우
-        log.info(" [Kakao Service] Id Token ------> {}", kakaoTokenResponseDto.getIdToken());
-        log.info(" [Kakao Service] Scope ------> {}", kakaoTokenResponseDto.getScope());
+        log.info(" [code] --------------> {}", code);
+        log.info(" [Access Token] ------> {}", kakaoTokenResponseDto.getAccessToken());
+        
+//        log.info(" [Kakao Service] Scope ------> {}", kakaoTokenResponseDto.getScope()); // 동의 항목
 
         return kakaoTokenResponseDto.getAccessToken();
     }
 
-    public KakaoUserInfoResponseDto getUserInfo(String accessToken) {
-
-        KakaoUserInfoResponseDto userInfo = WebClient.create(KAUTH_USER_URL_HOST)
+    public KakaoUserDto getUserInfo(String accessToken) { // 사용자 정보 가져오기
+        KakaoUserDto userInfo = WebClient.create(KAUTH_USER_URL_HOST)
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
@@ -72,12 +74,34 @@ public class KakaoService {
                 //TODO : Custom Exception
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
-                .bodyToMono(KakaoUserInfoResponseDto.class)
+                .bodyToMono(KakaoUserDto.class)
                 .block();
 
-        log.info("[ Kakao Service ] Auth ID ---> {} ", userInfo.getId());
-        log.info("[ Kakao Service ] NickName ---> {} ", userInfo.getKakaoAccount().getProfile().getNickName());
-        log.info("[ Kakao Service ] ProfileImageUrl ---> {} ", userInfo.getKakaoAccount().getProfile().getProfileImageUrl());
+        return userInfo;
+    }
+
+    public KakaoUserDto setUserInfo(String accessToken) { // 사용자 정보 저장하기
+
+        KakaoUserDto userInfo = getUserInfo(accessToken);
+
+        // 가져온 사용자 정보에서 닉네임 추출
+        String nickname = userInfo.getProfile().getNickName();
+
+        WebClient.create(KAUTH_USER_URL_HOST)
+                .post()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("https")
+                        .path("/v1/user/update_profile")
+                        .build(true))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken) // access token 인가
+                .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
+                .bodyValue("properties=" + String.format("{\"%s\":\"%s\"}", "nickname", nickname))
+                .retrieve()
+                //TODO : Custom Exception
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
+                .bodyToMono(Void.class)
+                .block();
 
         return userInfo;
     }
