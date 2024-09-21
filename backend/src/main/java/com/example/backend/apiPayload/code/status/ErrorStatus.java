@@ -17,7 +17,7 @@ public enum ErrorStatus implements BaseErrorCode {
   _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
   // 멤버 관련 에러
-  MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4001", "사용자가 없습니다."),
+  USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER4001", "사용자가 없습니다."),
 
   // 랜드마크 관련 에러
   INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "LANDMARK4001", "잘못된 카테고리입니다. (nature, history, culture) 중에 입력해주세요."),

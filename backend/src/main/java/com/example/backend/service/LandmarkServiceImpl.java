@@ -3,15 +3,19 @@ package com.example.backend.service;
 import com.example.backend.apiPayload.code.status.ErrorStatus;
 import com.example.backend.apiPayload.exception.handler.TempHandler;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
+import com.example.backend.dto.LandmarkResponseDTO.LandmarkMapDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
 import com.example.backend.model.Landmark;
+import com.example.backend.model.UsersEntity;
 import com.example.backend.model.enums.Category;
 import com.example.backend.repository.LandmarkRepository;
+import com.example.backend.repository.UsersRepository;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,6 +32,7 @@ import org.xml.sax.InputSource;
 public class LandmarkServiceImpl implements LandmarkService {
 
   private final LandmarkRepository landmarkRepository;
+  private final UsersRepository usersRepository;
 
   private RestTemplate createRestTemplate() {
     RestTemplate restTemplate = new RestTemplate();
@@ -146,6 +151,22 @@ public class LandmarkServiceImpl implements LandmarkService {
 
     return closeLandmarks.stream()
         .map(this::convertToDTO)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<LandmarkMapDTO> getMapLandmarks(long userId) {
+    UsersEntity user = usersRepository.findById(userId).orElseThrow(() -> new TempHandler(ErrorStatus.USER_NOT_FOUND));
+
+    List<Category> userCategories = user.getCategories();
+    List<Landmark> landmarks = landmarkRepository.findByCategoriesIn(userCategories);
+
+    return landmarks.stream()
+        .map(landmark -> LandmarkMapDTO.builder()
+            .landmarkId(landmark.getId())
+            .mapX(landmark.getMapX())
+            .mapY(landmark.getMapY())
+            .build())
         .collect(Collectors.toList());
   }
 

@@ -27,6 +27,16 @@ public class LandmarkResponseDTO {
   @Getter
   @NoArgsConstructor
   @AllArgsConstructor
+  public static class LandmarkMapDTO {
+    Long landmarkId;
+    private double mapX;
+    private double mapY;
+  }
+
+  @Builder
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
   public static class LandmarkFindDTO {
     Long landmarkId;
     String title;

@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.apiPayload.ApiResponse;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
+import com.example.backend.dto.LandmarkResponseDTO.LandmarkMapDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
 import com.example.backend.model.enums.Category;
 import com.example.backend.service.LandmarkService;
@@ -60,6 +61,13 @@ public class LandmarkController {
   @GetMapping("/close")
   public ApiResponse<List<LandmarkPreViewDTO>> getCloseLandmarks(@RequestParam(name = "mapX") double mapX, @RequestParam(name = "mapY") double mapY) {
     List<LandmarkPreViewDTO> result = landmarkService.getCloseLandmarks(mapX, mapY);
+    return ApiResponse.onSuccess(result);
+  }
+
+  @Operation(summary = "지도 랜드마크 조회 API", description = "지도에서의 랜드마크를 조회하는 기능입니다. 로그인된 유저의 관심사 정보를 통해 랜드마크를 반환합니다")
+  @GetMapping("/map")
+  public ApiResponse<List<LandmarkMapDTO>> getMapLandmarks(@RequestParam String userId) {
+    List<LandmarkMapDTO> result = landmarkService.getMapLandmarks(Long.parseLong(userId));
     return ApiResponse.onSuccess(result);
   }
 

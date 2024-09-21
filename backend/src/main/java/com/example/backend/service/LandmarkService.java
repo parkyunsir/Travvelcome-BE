@@ -1,6 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
+import com.example.backend.dto.LandmarkResponseDTO.LandmarkMapDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
 import com.example.backend.model.enums.Category;
 import java.util.List;
@@ -18,4 +19,6 @@ public interface LandmarkService {
   LandmarkFindDTO getLandmarkFind(Long landmarkId);
 
   List<LandmarkPreViewDTO> getCloseLandmarks(double mapX, double mapY);
+
+  List<LandmarkMapDTO> getMapLandmarks(long userId);
 }
