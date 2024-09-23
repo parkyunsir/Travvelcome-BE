@@ -2,7 +2,8 @@ package com.example.backend.service;
 
 import com.example.backend.dto.KakaoTokenResponseDto;
 import com.example.backend.dto.KakaoUserDto;
-import com.example.backend.dto.UsersDTO;
+import com.example.backend.model.UsersEntity;
+import com.example.backend.repository.UsersRepository;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -25,7 +27,7 @@ public class KakaoService {
     private final String KAUTH_USER_URL_HOST;
 
     @Autowired
-    UsersService usersService;
+    private UsersRepository usersRepository;
 
     @Autowired
     public KakaoService(@Value("${kakao.client.id}") String clientId) {
@@ -34,6 +36,7 @@ public class KakaoService {
         KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
     }
 
+    // 토큰 가져오기
     public String getAccessTokenFromKakao(String code) {
 
         KakaoTokenResponseDto kakaoTokenResponseDto = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
@@ -52,16 +55,13 @@ public class KakaoService {
                 .bodyToMono(KakaoTokenResponseDto.class)
                 .block();
 
-
-        log.info(" [code] --------------> {}", code);
-        log.info(" [Access Token] ------> {}", kakaoTokenResponseDto.getAccessToken());
-        
-//        log.info(" [Kakao Service] Scope ------> {}", kakaoTokenResponseDto.getScope()); // 동의 항목
-
+        log.info("Access Token ------> {}", kakaoTokenResponseDto.getAccessToken());
         return kakaoTokenResponseDto.getAccessToken();
     }
 
-    public KakaoUserDto getUserInfo(String accessToken) { // 사용자 정보 가져오기
+    // 사용자 정보 (/v2/user/me)
+    public KakaoUserDto getUserInfo(String accessToken) {
+
         KakaoUserDto userInfo = WebClient.create(KAUTH_USER_URL_HOST)
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -77,32 +77,15 @@ public class KakaoService {
                 .bodyToMono(KakaoUserDto.class)
                 .block();
 
+        log.info("ID ---> {} ", userInfo.getId());
+//        log.info("Email ---> {} ", userInfo.getKakaoAccount().getEmail()); // 현재 이메일은 null 값이다.
         return userInfo;
     }
 
-    public KakaoUserDto setUserInfo(String accessToken) { // 사용자 정보 저장하기
+    // 사용자 정보 저장
+    @Transactional
+    public UsersEntity saveUserInfo(UsersEntity entity) { // 사용자 정보 저장하기
 
-        KakaoUserDto userInfo = getUserInfo(accessToken);
-
-        // 가져온 사용자 정보에서 닉네임 추출
-        String nickname = userInfo.getProfile().getNickName();
-
-        WebClient.create(KAUTH_USER_URL_HOST)
-                .post()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme("https")
-                        .path("/v1/user/update_profile")
-                        .build(true))
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken) // access token 인가
-                .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
-                .bodyValue("properties=" + String.format("{\"%s\":\"%s\"}", "nickname", nickname))
-                .retrieve()
-                //TODO : Custom Exception
-                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
-                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
-                .bodyToMono(Void.class)
-                .block();
-
-        return userInfo;
+        return usersRepository.save(entity);
     }
 }

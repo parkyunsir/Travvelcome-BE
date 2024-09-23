@@ -16,9 +16,8 @@ import lombok.NoArgsConstructor;
 public class UsersEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long kakaoId; // 카카오 고유 ID
+    private Long id; // 카카오 id를 저장한다.
+    private String email;
     private String nickname;
     private String thumbnailImageUrl;
     private String profileImageUrl;
