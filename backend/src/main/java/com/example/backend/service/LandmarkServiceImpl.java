@@ -6,9 +6,11 @@ import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkMapDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
 import com.example.backend.model.Landmark;
+import com.example.backend.model.Stamp;
 import com.example.backend.model.UsersEntity;
 import com.example.backend.model.enums.Category;
 import com.example.backend.repository.LandmarkRepository;
+import com.example.backend.repository.StampRepository;
 import com.example.backend.repository.UsersRepository;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -33,6 +35,7 @@ public class LandmarkServiceImpl implements LandmarkService {
 
   private final LandmarkRepository landmarkRepository;
   private final UsersRepository usersRepository;
+  private final StampRepository stampRepository;
 
   private RestTemplate createRestTemplate() {
     RestTemplate restTemplate = new RestTemplate();
@@ -168,6 +171,20 @@ public class LandmarkServiceImpl implements LandmarkService {
             .mapY(landmark.getMapY())
             .build())
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public void findLandmark(Long landmarkId, long userId) {
+    UsersEntity user = usersRepository.findById(userId).orElseThrow(() -> new TempHandler(ErrorStatus.USER_NOT_FOUND));
+    Landmark landmark = landmarkRepository.findById(landmarkId).orElseThrow(() -> new TempHandler(ErrorStatus.LANDMARK_NOT_FOUND));
+    stampRepository.findByUserAndLandmark(user, landmark)
+        .ifPresent(mb -> { throw new TempHandler(ErrorStatus.ALREADY_FIND_LANDMARK); });
+
+    Stamp stamp = Stamp.builder()
+        .user(user)
+        .landmark(landmark)
+        .build();
+    stampRepository.save(stamp);
   }
 
   // Haversine 공식을 사용한 거리 계산 (단위: km)

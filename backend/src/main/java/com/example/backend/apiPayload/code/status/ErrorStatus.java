@@ -22,7 +22,9 @@ public enum ErrorStatus implements BaseErrorCode {
   // 랜드마크 관련 에러
   INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "LANDMARK4001", "잘못된 카테고리입니다. (nature, history, culture) 중에 입력해주세요."),
   NULL_CATEGORY(HttpStatus.BAD_REQUEST, "LANDMARK4002", "카테고리의 값이 null입니다."),
-  LANDMARK_NOT_FOUND(HttpStatus.BAD_REQUEST, "LANDMARK4003", "랜드마크가 존재하지 않습니다.");
+  LANDMARK_NOT_FOUND(HttpStatus.BAD_REQUEST, "LANDMARK4003", "랜드마크가 존재하지 않습니다."),
+  ALREADY_FIND_LANDMARK(HttpStatus.BAD_REQUEST, "LANDMARK4004", "이미 발견한 랜드마크 입니다.");
+
   private final HttpStatus httpStatus;
   private final String code;
   private final String message;

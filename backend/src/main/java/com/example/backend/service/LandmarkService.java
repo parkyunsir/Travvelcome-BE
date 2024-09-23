@@ -21,4 +21,6 @@ public interface LandmarkService {
   List<LandmarkPreViewDTO> getCloseLandmarks(double mapX, double mapY);
 
   List<LandmarkMapDTO> getMapLandmarks(long userId);
+
+  void findLandmark(Long landmarkId, long userId);
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,6 +70,13 @@ public class LandmarkController {
   public ApiResponse<List<LandmarkMapDTO>> getMapLandmarks(@RequestParam String userId) {
     List<LandmarkMapDTO> result = landmarkService.getMapLandmarks(Long.parseLong(userId));
     return ApiResponse.onSuccess(result);
+  }
+
+  @Operation(summary = "랜드마크 발견 하기 API", description = "랜드마크를 발견하는 기능입니다.")
+  @PostMapping("/find/{landmarkId}")
+  public ApiResponse<Long> findLandmark(@PathVariable("landmarkId") Long landmarkId, @RequestParam String userId) {
+    landmarkService.findLandmark(landmarkId, Long.parseLong(userId));
+    return ApiResponse.onSuccess(landmarkId);
   }
 
 }
