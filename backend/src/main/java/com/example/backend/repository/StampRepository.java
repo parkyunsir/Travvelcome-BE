@@ -9,4 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface StampRepository extends JpaRepository<Stamp, Long> {
 
   Optional<Object> findByUserAndLandmark(UsersEntity user, Landmark landmark);
+
+  Long countByUser(UsersEntity user);
 }
