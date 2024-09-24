@@ -1,5 +1,6 @@
 package com.example.backend.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,6 +9,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
                 //.csrf(csrf -> csrf.disable()) // CSRF 비활성화 (필요한 경우)
@@ -20,18 +22,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
 //                .csrf().disable()
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/login").permitAll() // 이 경로들은 모두 접근 허용
-                        .anyRequest().permitAll() // 추후 수정
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
+        http
+            .authorizeHttpRequests(authorize -> authorize
+                    .requestMatchers("/", "/login").permitAll() // 이 경로들은 모두 접근 허용
+                    .anyRequest().permitAll() // 추후 수정
+            )
+            .oauth2Login(oauth2 -> oauth2
+                    .loginPage("/login")
 //                        .userInfoEndpoint(userInfo -> userInfo
 //                                .userService(customOAuth2UserService()) // OAuth2 로그인 후 사용자 서비스 설정
 //                        )
-                );
+            );
 
         return http.build();
     }
