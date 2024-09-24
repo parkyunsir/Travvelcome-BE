@@ -5,6 +5,7 @@ import com.example.backend.apiPayload.exception.handler.TempHandler;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkMapDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
+import com.example.backend.model.Interest;
 import com.example.backend.model.Landmark;
 import com.example.backend.model.Stamp;
 import com.example.backend.model.UsersEntity;
@@ -160,7 +161,10 @@ public class LandmarkServiceImpl implements LandmarkService {
   public List<LandmarkMapDTO> getMapLandmarks(long userId) {
     UsersEntity user = usersRepository.findById(userId).orElseThrow(() -> new TempHandler(ErrorStatus.USER_NOT_FOUND));
 
-    List<Category> userCategories = user.getCategories();
+    List<Category> userCategories = user.getInterests().stream()
+        .map(Interest::getCategory)
+        .collect(Collectors.toList());
+
     List<Landmark> landmarks = landmarkRepository.findByCategoriesIn(userCategories);
 
     return landmarks.stream()

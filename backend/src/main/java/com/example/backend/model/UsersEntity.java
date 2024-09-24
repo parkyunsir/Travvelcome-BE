@@ -25,8 +25,6 @@ public class UsersEntity {
     private String thumbnailImageUrl;
     private String profileImageUrl;
 
-    @ElementCollection(targetClass = Category.class)
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
-    private List<Category> categories;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Interest> interests;
 }
