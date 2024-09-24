@@ -3,8 +3,7 @@ package com.example.backend.dto;
 import com.example.backend.model.UsersEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor //역직렬화를 위한 기본 생성자
@@ -21,7 +20,7 @@ public class KakaoUserDto {
     @Getter
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public class KakaoAccount { //profile, name, email
+    public static class KakaoAccount { //profile, name, email
 
         //사용자 프로필 정보
         @JsonProperty("profile")
@@ -55,7 +54,7 @@ public class KakaoUserDto {
         @Getter
         @NoArgsConstructor
         @JsonIgnoreProperties(ignoreUnknown = true)
-        public class Profile { // nickname, thumbnailImageUrl, profileImageUrl
+        public static class Profile { // nickname, thumbnailImageUrl, profileImageUrl
 
             //닉네임
             @JsonProperty("nickname")
