@@ -1,6 +1,5 @@
 package com.example.backend.model;
 
-
 import com.example.backend.model.enums.Category;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;

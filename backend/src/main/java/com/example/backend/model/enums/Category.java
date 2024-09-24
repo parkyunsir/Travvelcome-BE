@@ -8,14 +8,12 @@ public enum Category {
   ARBORETUM,
   PARK,
   SCENERY,
-
   // 역사
   MUSEUM,
   PALACE,
   HISTORIC_SITE,
   FOLK_VILLAGE,
   TRADITIONAL_EXPERIENCE,
-
   // 문화
   LOCAL_CULTURE,
   HUMANITIES,

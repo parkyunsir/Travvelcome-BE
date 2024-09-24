@@ -1,6 +1,5 @@
 package com.example.backend.repository;
 
-import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
 import com.example.backend.model.Landmark;
 import com.example.backend.model.enums.Category;
 import java.util.List;
