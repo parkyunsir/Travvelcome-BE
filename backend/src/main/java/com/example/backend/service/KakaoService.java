@@ -1,27 +1,17 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.KakaoTokenResponseDto;
-import com.example.backend.dto.KakaoUserDto;
-import com.example.backend.model.UsersEntity;
-import com.example.backend.repository.UsersRepository;
+import com.example.backend.dto.KakaoDto;
+import com.example.backend.repository.UserRepository;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 
 @Slf4j
@@ -34,7 +24,7 @@ public class KakaoService {
     private final String KAUTH_USER_URL_HOST;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private UserRepository userRepository;
 
     @Autowired
     public KakaoService(@Value("${kakao.client.id}") String clientId) {
@@ -67,8 +57,8 @@ public class KakaoService {
     }
 
     // 사용자 정보 (/v2/user/me)
-    public KakaoUserDto getUserInfo(String accessToken) {
-        KakaoUserDto userInfo = WebClient.create(KAUTH_USER_URL_HOST)
+    public KakaoDto getUserInfo(String accessToken) {
+        KakaoDto userInfo = WebClient.create(KAUTH_USER_URL_HOST)
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
@@ -80,7 +70,7 @@ public class KakaoService {
                 //TODO : Custom Exception
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
-                .bodyToMono(KakaoUserDto.class)
+                .bodyToMono(KakaoDto.class)
                 .block();
 
         log.info("ID ---> {} ", userInfo.getId());
@@ -89,10 +79,10 @@ public class KakaoService {
     }
 
     // 사용자 정보 저장
-//    public KakaoUserDto saveUserInfo(String accessToken, KakaoUserDto userInfoToUpdate) {
+//    public KakaoDto saveUserInfo(String accessToken, KakaoDto userInfoToUpdate) {
 //        // userInfoToUpdate는 수정할 사용자 정보를 담고 있어야 합니다.
 //
-//        KakaoUserDto updatedUserInfo = WebClient.create(KAUTH_USER_URL_HOST)
+//        KakaoDto updatedUserInfo = WebClient.create(KAUTH_USER_URL_HOST)
 //                .post()
 //                .uri(uriBuilder -> uriBuilder
 //                        .scheme("https")
@@ -111,7 +101,7 @@ public class KakaoService {
 //                    log.error("Server Error: {}", clientResponse.bodyToMono(String.class).block());
 //                    return Mono.error(new RuntimeException("Internal Server Error"));
 //                })
-//                .bodyToMono(KakaoUserDto.class)
+//                .bodyToMono(KakaoDto.class)
 //                .block();
 //
 //        log.info("Updated ID ---> {} ", updatedUserInfo.getId());
@@ -162,7 +152,7 @@ public class KakaoService {
 //        }
 //
 //        // Optionally, save the updated user info to your database
-//        usersRepository.save(user);
+//        userRepository.save(user);
 //
 //        return user;
 //    }
@@ -170,7 +160,7 @@ public class KakaoService {
 
     // 사용자 정보 가져오기
 //    public UsersEntity getUserInfo(Long id) {
-//        return usersRepository.findById(id)
+//        return userRepository.findById(id)
 //                .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
 //    }
 

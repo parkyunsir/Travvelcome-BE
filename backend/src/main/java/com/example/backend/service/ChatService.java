@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -126,7 +128,7 @@ public class ChatService {
     }
 
     // 목록 - 랜드마크 리스트
-    public List<ChatEntity> showList() {
+    public List<Map<String, Object>> showList() {
         // 모든 LandmarkId 가져오기
         List<Landmark> landmarks = landmarkRepository.findAll();
 
@@ -134,20 +136,37 @@ public class ChatService {
     }
 
     // 목록 - 랜드마크 이름 검색하기
-    public List<ChatEntity> searchLandmark(final String title) {
+    public List<Map<String, Object>> searchLandmark(final String title) {
         List<Landmark> landmarks = landmarkRepository.findByTitleContaining(title);
 
         return convert(landmarks);
     }
 
     // List<Landmark>에서 id 추출 -> List<ChatEntity>로 변환
-    public List<ChatEntity> convert(List<Landmark> landmarks) {
+    public List<Map<String, Object>> convert(List<Landmark> landmarks) {
+
+        // id & title
+        Map<Long, String> landmarkTitle = landmarks.stream()
+                .collect(Collectors.toMap(Landmark::getId, Landmark::getTitle)); // id와 title 가져오기
+
+        // id만
         List<Long> landmarkIds = landmarks.stream()
                 .map(Landmark::getId) // 각 LandmarkEntity의 id 추출
-                .collect(Collectors.toList());
+                .toList();
 
         // 이 id를 토대로 ChatEntity 반환하기.
-        return chatRepository.findLatestChatByLandmarkIds(landmarkIds);
+        List<ChatEntity> chatEntities = chatRepository.findLatestChatByLandmarkIds(landmarkIds);
+
+        return chatEntities.stream()
+                .map(chatEntity -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("landmarkId", chatEntity.getLandmarkId());
+                    map.put("landmarkTitle", landmarkTitle.get(chatEntity.getLandmarkId()));
+                    map.put("received", chatEntity.getReceived());
+                    map.put("date", chatEntity.getDate());
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
     // 유효성 검사
