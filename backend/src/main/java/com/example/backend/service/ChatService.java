@@ -1,13 +1,16 @@
 package com.example.backend.service;
 
 import com.example.backend.model.ChatEntity;
+import com.example.backend.model.Landmark;
 import com.example.backend.repository.ChatRepository;
+import com.example.backend.repository.LandmarkRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import okhttp3.*;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,6 +33,9 @@ public class ChatService {
 
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private LandmarkRepository landmarkRepository;
 
 
     // 챗GPT 답변 생성
@@ -51,7 +58,7 @@ public class ChatService {
         // 이전 질문, 답변 받아와서 기억하기
         for (ChatEntity entity : entities) {
             String request = entity.getSent();
-            String response = entity.getReceived().replace("\n", ""); // 역슬래시 제거
+            String response = entity.getReceived().replace("\n", "");
 
             contentBuilder.append("사용자가 '")
                     .append(request)
@@ -108,10 +115,23 @@ public class ChatService {
         }
     }
 
-    // 대화 목록 보여주기
+    // 전체 대화 보여주기
     public List<ChatEntity> showChat(Long landmarkId) {
         return chatRepository.findByLandmarkId(landmarkId);
     }
+
+    // 대화 목록 보여주기
+    public List<ChatEntity> showList() {
+        // 모든 LandmarkId 가져오기
+        List<Landmark> landmarks = landmarkRepository.findAll();
+        List<Long> landmarkIds = landmarks.stream()
+                .map(Landmark::getId) // 각 LandmarkEntity의 id 추출
+                .collect(Collectors.toList());
+
+        // 이 id를 토대로 ChatEntity 반환하기.
+        return chatRepository.findLatestChatByLandmarkIds(landmarkIds);
+    }
+
     // 유효성 검사
     public void validate(ChatEntity entity) {
         if (entity == null) {

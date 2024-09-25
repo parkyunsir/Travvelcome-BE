@@ -11,8 +11,12 @@ import java.util.List;
 @Repository
 public interface ChatRepository extends JpaRepository<ChatEntity, String> {
 
-    // void deleteByUserId(String userId);
-
     // landmark별로 chat 내역 출력
     List<ChatEntity> findByLandmarkId(Long landmarkId);
+
+    // landmark별 date chatList 가져오기
+    @Query("SELECT c FROM ChatEntity c WHERE c.landmarkId IN :landmarkIds " +
+            "AND c.date = (SELECT MAX(c2.date) FROM ChatEntity c2 WHERE c2.landmarkId = c.landmarkId)")
+    List<ChatEntity> findLatestChatByLandmarkIds(@Param("landmarkIds") List<Long> landmarkIds);
+
 }
