@@ -8,7 +8,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor //역직렬화를 위한 기본 생성자
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class KakaoUserDto {
+public class KakaoDto {
 
     //회원 번호
     @JsonProperty("id")
@@ -82,12 +82,12 @@ public class KakaoUserDto {
 
     }
 
-    public KakaoUserDto(UsersEntity entity){
+    public KakaoDto(UsersEntity entity){
         this.id = entity.getId();
         this.kakaoAccount = new KakaoAccount(entity);
     }
 
-    public static UsersEntity toEntity(final KakaoUserDto dto){
+    public static UsersEntity toEntity(final KakaoDto dto){
         return UsersEntity.builder()
                 .id(dto.getId())
                 .email(dto.getKakaoAccount().getEmail())
