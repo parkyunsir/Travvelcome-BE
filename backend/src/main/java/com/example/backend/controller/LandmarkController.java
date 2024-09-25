@@ -1,10 +1,12 @@
 package com.example.backend.controller;
 
 import com.example.backend.apiPayload.ApiResponse;
+import com.example.backend.dto.KakaoUserDto;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkMapDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
 import com.example.backend.model.enums.Category;
+import com.example.backend.service.KakaoService;
 import com.example.backend.service.LandmarkService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LandmarkController {
 
   private final LandmarkService landmarkService;
+  private final KakaoService kakaoService;
 
   @GetMapping("/fetch-landmarks")
   public String fetchLandmarks() {
@@ -72,10 +75,11 @@ public class LandmarkController {
     return ApiResponse.onSuccess(result);
   }
 
-  @Operation(summary = "랜드마크 발견 하기 API", description = "랜드마크를 발견하는 기능입니다.")
+  @Operation(summary = "랜드마크 발견 하기 API", description = "랜드마크를 발견하는 기능입니다. userId에 토큰을 입력해주세요.")
   @PostMapping("/find/{landmarkId}")
   public ApiResponse<Long> findLandmark(@PathVariable("landmarkId") Long landmarkId, @RequestParam String userId) {
-    landmarkService.findLandmark(landmarkId, Long.parseLong(userId));
+    KakaoUserDto kakaoUserDto = kakaoService.getUserInfo(userId);
+    landmarkService.findLandmark(landmarkId, kakaoUserDto.getId());
     return ApiResponse.onSuccess(landmarkId);
   }
 
