@@ -1,7 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.apiPayload.ApiResponse;
-import com.example.backend.dto.KakaoUserDto;
+import com.example.backend.dto.KakaoDto;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkMapDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
@@ -78,8 +78,8 @@ public class LandmarkController {
   @Operation(summary = "랜드마크 발견 하기 API", description = "랜드마크를 발견하는 기능입니다. userId에 토큰을 입력해주세요.")
   @PostMapping("/find/{landmarkId}")
   public ApiResponse<Long> findLandmark(@PathVariable("landmarkId") Long landmarkId, @RequestParam String userId) {
-    KakaoUserDto kakaoUserDto = kakaoService.getUserInfo(userId);
-    landmarkService.findLandmark(landmarkId, kakaoUserDto.getId());
+    KakaoDto kakaoDto = kakaoService.getUserInfo(userId);
+    landmarkService.findLandmark(landmarkId, kakaoDto.getId());
     return ApiResponse.onSuccess(landmarkId);
   }
 
