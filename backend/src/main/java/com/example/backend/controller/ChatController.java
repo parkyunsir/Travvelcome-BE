@@ -3,12 +3,9 @@ package com.example.backend.controller;
 import com.example.backend.apiPayload.ApiResponse;
 import com.example.backend.dto.ChatDTO;
 import com.example.backend.model.ChatEntity;
-import com.example.backend.model.Landmark;
-import com.example.backend.repository.LandmarkRepository;
 import com.example.backend.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -21,9 +18,6 @@ import java.util.stream.Collectors;
 public class ChatController {
     @Autowired
     private ChatService chatService;
-
-    @Autowired
-    private LandmarkRepository landmarkRepository;
 
     // 질문하기 (답변도 이 때 출력됨)
     @PostMapping
