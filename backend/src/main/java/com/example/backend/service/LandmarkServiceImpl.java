@@ -12,7 +12,8 @@ import com.example.backend.model.UsersEntity;
 import com.example.backend.model.enums.Category;
 import com.example.backend.repository.LandmarkRepository;
 import com.example.backend.repository.StampRepository;
-import com.example.backend.repository.UsersRepository;
+import com.example.backend.repository.UserRepository;
+
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import org.xml.sax.InputSource;
 public class LandmarkServiceImpl implements LandmarkService {
 
   private final LandmarkRepository landmarkRepository;
-  private final UsersRepository usersRepository;
+  private final UserRepository userRepository;
   private final StampRepository stampRepository;
 
   private RestTemplate createRestTemplate() {
@@ -159,7 +160,7 @@ public class LandmarkServiceImpl implements LandmarkService {
 
   @Override
   public List<LandmarkMapDTO> getMapLandmarks(long userId) {
-    UsersEntity user = usersRepository.findById(userId).orElseThrow(() -> new TempHandler(ErrorStatus.USER_NOT_FOUND));
+    UsersEntity user = userRepository.findById(userId).orElseThrow(() -> new TempHandler(ErrorStatus.USER_NOT_FOUND));
 
     List<Category> userCategories = user.getInterests().stream()
         .map(Interest::getCategory)
@@ -178,7 +179,7 @@ public class LandmarkServiceImpl implements LandmarkService {
 
   @Override
   public void findLandmark(Long landmarkId, long userId) {
-    UsersEntity user = usersRepository.findById(userId).orElseThrow(() -> new TempHandler(ErrorStatus.USER_NOT_FOUND));
+    UsersEntity user = userRepository.findById(userId).orElseThrow(() -> new TempHandler(ErrorStatus.USER_NOT_FOUND));
     Landmark landmark = landmarkRepository.findById(landmarkId).orElseThrow(() -> new TempHandler(ErrorStatus.LANDMARK_NOT_FOUND));
     stampRepository.findByUserAndLandmark(user, landmark)
         .ifPresent(mb -> { throw new TempHandler(ErrorStatus.ALREADY_FIND_LANDMARK); });

@@ -1,17 +1,14 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.KakaoUserDto;
+import com.example.backend.dto.KakaoDto;
 import com.example.backend.model.UsersEntity;
-import com.example.backend.repository.UsersRepository;
+import com.example.backend.repository.UserRepository;
 import com.example.backend.service.KakaoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Optional;
 
 
 // 추후에 login.html 파일 지우고 리액트와 연결시키기
@@ -20,13 +17,13 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("")
-public class KakaoLoginController {
+public class KakaoController {
 
     @Autowired
     private KakaoService kakaoService;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private UserRepository userRepository;
 
 //    @Autowired
 //    private UserOAuth2Service userOAuth2Service;
@@ -36,21 +33,21 @@ public class KakaoLoginController {
         String accessToken = kakaoService.getAccessTokenFromKakao(code);
 
         // 정보 출력
-        KakaoUserDto getUserDTO = kakaoService.getUserInfo(accessToken);
-        UsersEntity getUserEntity = KakaoUserDto.toEntity(getUserDTO);
+        KakaoDto getUserDTO = kakaoService.getUserInfo(accessToken);
+        UsersEntity getUserEntity = KakaoDto.toEntity(getUserDTO);
 
 
 //        UsersEntity setUserEntity = kakaoService.updateUserProfile(accessToken, getUserEntity);
 //
 //        // 저장하기
-////        KakaoUserDto setUserDTO  = kakaoService.saveUserInfo(accessToken,getUserDTO);
+////        KakaoDto setUserDTO  = kakaoService.saveUserInfo(accessToken,getUserDTO);
 //        log.info("setE: " + setUserEntity.toString());
 //
-//        KakaoUserDto savedDto = KakaoUserDto.builder()
+//        KakaoDto savedDto = KakaoDto.builder()
 //                .id(setUserEntity.getId())
-//                .kakaoAccount(KakaoUserDto.KakaoAccount.builder()
+//                .kakaoAccount(KakaoDto.KakaoAccount.builder()
 ////                        .email(setUserEntity.getEmail())
-//                        .profile(KakaoUserDto.KakaoAccount.Profile.builder()
+//                        .profile(KakaoDto.KakaoAccount.Profile.builder()
 //                                .nickName(setUserEntity.getNickname())
 //                                .thumbnailImageUrl(setUserEntity.getThumbnailImageUrl())
 //                                .profileImageUrl(setUserEntity.getProfileImageUrl())
@@ -63,7 +60,7 @@ public class KakaoLoginController {
     }
 
 //    @GetMapping("/user") // 사용자 정보 출력
-//    public ResponseEntity<?> showUser(@AuthenticationPrincipal KakaoUserDto dto) {
+//    public ResponseEntity<?> showUser(@AuthenticationPrincipal KakaoDto dto) {
 //
 //        if (dto == null) {
 //            log.info("dto is null: ");
@@ -73,7 +70,7 @@ public class KakaoLoginController {
 //        log.info("User ID: " + dto.getId());
 //        log.info("User Nickname: " + dto.getKakaoAccount().getProfile().getNickName());
 //
-//        Long id = KakaoUserDto.toEntity(dto).getId();
+//        Long id = KakaoDto.toEntity(dto).getId();
 //
 //
 //        // Optional로 반환받고, get() 메서드로 UsersEntity 가져오기

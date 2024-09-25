@@ -1,7 +1,7 @@
 //package com.example.backend.config.oauth;
 //
 //import com.example.backend.model.UsersEntity;
-//import com.example.backend.repository.UsersRepository;
+//import com.example.backend.repository.UserRepository;
 //import lombok.RequiredArgsConstructor;
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@
 //@Service
 //public class UserOAuth2Service extends DefaultOAuth2UserService {
 //    @Autowired
-//    private UsersRepository usersRepository;
+//    private UserRepository usersRepository;
 //    private UsersEntity userInfo;
 //
 //    @Override
