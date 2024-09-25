@@ -19,4 +19,6 @@ public interface ChatRepository extends JpaRepository<ChatEntity, String> {
             "AND c.date = (SELECT MAX(c2.date) FROM ChatEntity c2 WHERE c2.landmarkId = c.landmarkId)")
     List<ChatEntity> findLatestChatByLandmarkIds(@Param("landmarkIds") List<Long> landmarkIds);
 
+    // 대화 내역 검색하기
+    List<ChatEntity> findBySentContainingOrReceivedContaining(String sent, String received);
 }

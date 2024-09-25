@@ -115,15 +115,33 @@ public class ChatService {
         }
     }
 
-    // 전체 대화 보여주기
+    // 대화 - 1:1 대화 내역
     public List<ChatEntity> showChat(Long landmarkId) {
         return chatRepository.findByLandmarkId(landmarkId);
     }
 
-    // 대화 목록 보여주기
+    // 대화 - 대화 내역 검색하기
+    public List<ChatEntity> searchChatting(final String text) {
+        return chatRepository.findBySentContainingOrReceivedContaining(text, text);
+    }
+
+    // 목록 - 랜드마크 리스트
     public List<ChatEntity> showList() {
         // 모든 LandmarkId 가져오기
         List<Landmark> landmarks = landmarkRepository.findAll();
+
+        return convert(landmarks);
+    }
+
+    // 목록 - 랜드마크 이름 검색하기
+    public List<ChatEntity> searchLandmark(final String title) {
+        List<Landmark> landmarks = landmarkRepository.findByTitleContaining(title);
+
+        return convert(landmarks);
+    }
+
+    // List<Landmark>에서 id 추출 -> List<ChatEntity>로 변환
+    public List<ChatEntity> convert(List<Landmark> landmarks) {
         List<Long> landmarkIds = landmarks.stream()
                 .map(Landmark::getId) // 각 LandmarkEntity의 id 추출
                 .collect(Collectors.toList());
