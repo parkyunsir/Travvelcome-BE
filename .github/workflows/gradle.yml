@@ -26,6 +26,10 @@ jobs:
       working-directory: ./backend  # backend 디렉토리로 이동
       run: ./gradlew build  # Gradle 빌드 실행
 
+    - name: List JAR files after build
+      run: ls -l ./backend/build/libs/
+  
+
     - name: Transfer JAR file to EC2
       run: |
         echo "${{ secrets.AWS_SSH_KEY }}" > key.pem
