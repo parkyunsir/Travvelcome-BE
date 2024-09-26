@@ -53,6 +53,8 @@ public class ChatService {
         return chatRepository.save(entity);
     }
 
+    //
+
     // 이전 대화 내용 기억하기
     public String getCompletion(String prompt, Optional<String> title) throws IOException {
         List<ChatEntity> entities = chatRepository.findAll();
@@ -62,7 +64,6 @@ public class ChatService {
                 "너는 긍정적이고, 낙천적이고, 박학다식해. 너는 꼼꼼하고, 친절해." +
                 "user는 너에게 '제주도에 있는 다양한 장소 중 자연 혹은 문화 혹은 역사에 관련된 궁금한 장소'를 물어볼 거야.");
 
-        log.info("나는: " + title);
         // 이전 질문, 답변 받아와서 기억하기
         for (ChatEntity entity : entities) {
             String request = entity.getSent();
@@ -85,8 +86,10 @@ public class ChatService {
         system.put("role", "system");
         system.put("content", contentBuilder.toString() + "라고 했어.");
         user.put("role", "user");
-        user.put("content", prompt);
 
+
+
+        user.put("content", prompt);
         JSONArray messagesArray = new JSONArray();
         messagesArray.add(system);
         messagesArray.add(user);
@@ -106,7 +109,6 @@ public class ChatService {
                 .addHeader("Authorization", "Bearer " + apiKey)
                 .build();
 
-        log.info(request.toString());
         try (Response response = client.newCall(request).execute()) {
             if(!response.isSuccessful() || response.body() == null) {
                 throw new IOException("Unexpected : " + response);

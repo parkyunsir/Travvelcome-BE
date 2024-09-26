@@ -82,7 +82,7 @@ public class ChatController {
     }
 
 
-    // 목록 - landmark 대화 list
+    // 목록 - (최신순) landmark 대화 list
     @GetMapping("/list")
     public ResponseEntity<?> showChatList(){
         List<Map<String, Object>> entities =  chatService.showList();
