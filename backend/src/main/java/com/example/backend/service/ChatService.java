@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -128,8 +125,13 @@ public class ChatService {
 
     // 대화 - 1:1 대화 내역
     public List<ChatEntity> showChat(Long landmarkId) {
-        return chatRepository.findByLandmarkId(landmarkId);
+        // 채팅 데이터를 과거순으로 정렬
+        return chatRepository.findByLandmarkId(landmarkId)
+                .stream()
+                .sorted(Comparator.comparing(ChatEntity::getDate))
+                .collect(Collectors.toList());
     }
+
 
     // 대화 - 대화 내역 검색하기
     public List<ChatEntity> searchChatting(final String text) {
