@@ -7,36 +7,29 @@ on:
 
 jobs:
   build_and_deploy:
-    runs-on: ubuntu-latest  # GitHub Actions에서 사용할 환경 (Ubuntu)
+    runs-on: ubuntu-latest  # GitHub Actions에서 사용할 환경
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2  # GitHub 리포지토리의 코드를 체크아웃
+      uses: actions/checkout@v2  # 리포지토리의 코드를 체크아웃
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2  # JDK 설정
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-        
     - name: Grant execute permission for Gradle
-      run: chmod +x ./backend/gradlew
+      run: chmod +x ./backend/gradlew  # gradlew 파일에 실행 권한 부여
 
     - name: Build with Gradle
-      run: ./backend/gradlew build  # Gradle을 사용하여 프로젝트 빌드
+      working-directory: ./backend  # backend 디렉토리로 이동
+      run: ./gradlew build  # Gradle 빌드 실행
 
     - name: Transfer JAR file to EC2
       run: |
         echo "${{ secrets.AWS_SSH_KEY }}" > key.pem
         chmod 400 key.pem
-        scp -i key.pem -o StrictHostKeyChecking=no ./backend/build/libs/*.jar ${{ secrets.EC2_USER }}@${{ secrets.AWS_EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
+        scp -i key.pem -o StrictHostKeyChecking=no backend/build/libs/*.jar ${{ secrets.EC2_USER }}@${{ secrets.AWS_EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
 
     - name: SSH into EC2 and deploy
       run: |
         ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
-        # 기존 실행 중인 Spring 애플리케이션을 종료
         pkill -f 'java' || true
-        # 새로운 애플리케이션을 백그라운드에서 실행
         nohup java -jar /home/${{ secrets.EC2_USER }}/app.jar > /dev/null 2>&1 &
         EOF
 
