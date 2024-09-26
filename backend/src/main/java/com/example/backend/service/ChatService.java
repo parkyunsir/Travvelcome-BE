@@ -156,14 +156,22 @@ public class ChatService {
     // List<Landmark>에서 id 추출 -> List<ChatEntity>로 변환
     public List<Map<String, Object>> convert(List<Landmark> landmarks) {
 
-        // id & title
-        Map<Long, String> landmarkTitle = landmarks.stream()
-                .collect(Collectors.toMap(Landmark::getId, Landmark::getTitle)); // id와 title 가져오기
-
         // id만
         List<Long> landmarkIds = landmarks.stream()
                 .map(Landmark::getId) // 각 LandmarkEntity의 id 추출
                 .toList();
+
+        // title
+        Map<Long, String> landmarkTitle = landmarks.stream()
+                .collect(Collectors.toMap(
+                        Landmark::getId,
+                        Landmark::getTitle)); // id와 title 가져오기
+
+        // image
+        Map<Long, String> landmarkImage = landmarks.stream()
+                .collect(Collectors.toMap(
+                        Landmark::getId,
+                        Landmark::getImageUrl));
 
         // 이 id를 토대로 ChatEntity 반환하기.
         List<ChatEntity> chatEntities = chatRepository.findLatestChatByLandmarkIds(landmarkIds);
@@ -172,7 +180,8 @@ public class ChatService {
                 .map(chatEntity -> {
                     Map<String, Object> map = new HashMap<>();
                     map.put("landmarkId", chatEntity.getLandmarkId());
-                    map.put("landmarkTitle", landmarkTitle.get(chatEntity.getLandmarkId()));
+                    map.put("landmarkTitle", landmarkTitle.get(chatEntity.getLandmarkId())); // title
+                    map.put("landmarkImage", landmarkImage.get(chatEntity.getLandmarkId())); // image
                     map.put("received", chatEntity.getReceived());
                     map.put("date", chatEntity.getDate());
                     return map;
