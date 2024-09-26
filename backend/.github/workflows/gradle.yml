@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main  # main 브랜치에 푸시할 때마다 실행
+      - develop  # develop 브랜치에 푸시할 때마다 실행
 
 jobs:
   deploy:
@@ -20,12 +20,25 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: SSH to EC2 and pull the latest code
+      - name: SSH to EC2 and deploy application
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
           cd ${{ secrets.EC2_PROJECT_PATH }}
-          git pull origin main
+          git pull origin develop
           ./gradlew build
           pkill -f 'java -jar' || true
-          nohup java -jar build/libs/myapp-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
+          nohup java -jar build/libs/backend-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
           EOF
+
+      - name: Deploy to Server
+        env:
+          # MySQL environment variables
+          TRAVVELCOME_DB_PASSWORD: ${{ secrets.TRAVVELCOME_DB_PASSWORD }}
+          # OpenAI API environment variables
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL_ID: ${{ secrets.OPENAI_MODEL_ID }}
+          # Kakao API environment variables
+          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+          KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
+        run: |
+          java -jar target/your-app.jar
