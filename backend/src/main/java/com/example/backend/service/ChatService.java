@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,20 +44,28 @@ public class ChatService {
     // 챗GPT 답변 생성
     public ChatEntity createResponse(ChatEntity entity) throws IOException {
         validate(entity);
-        String response = getCompletion(entity.getSent());
+
+        Landmark landmark;
+
+        Long lid = entity.getLandmarkId(); // entity의 id
+        Optional<String> title = landmarkRepository.findTitleById(lid); // id로 이름 출력.
+
+        String response = getCompletion(entity.getSent(), title);
         entity.setReceived(response);
         entity.setDate(LocalDateTime.now());
         return chatRepository.save(entity);
     }
 
     // 이전 대화 내용 기억하기
-    public String getCompletion(String prompt) throws IOException {
+    public String getCompletion(String prompt, Optional<String> title) throws IOException {
         List<ChatEntity> entities = chatRepository.findAll();
         StringBuilder contentBuilder = new StringBuilder();
-        contentBuilder.append("너는 한국인이야. 너는 알려주는 것을 좋아해. " +
+        contentBuilder.append(String.format("너는 %s이야. ", title));
+        contentBuilder.append("너는 알려주는 것을 좋아해. " +
                 "너는 긍정적이고, 낙천적이고, 박학다식해. 너는 꼼꼼하고, 친절해." +
                 "user는 너에게 '제주도에 있는 다양한 장소 중 자연 혹은 문화 혹은 역사에 관련된 궁금한 장소'를 물어볼 거야.");
 
+        log.info("나는: " + title);
         // 이전 질문, 답변 받아와서 기억하기
         for (ChatEntity entity : entities) {
             String request = entity.getSent();
