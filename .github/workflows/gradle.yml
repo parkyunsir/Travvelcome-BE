@@ -31,7 +31,7 @@ jobs:
         echo "${{ secrets.AWS_SSH_KEY }}" > key.pem
         chmod 400 key.pem
         # JAR 파일을 EC2로 전송하고 'app.jar'로 저장
-        scp -i key.pem -o StrictHostKeyChecking=no ./backend/build/libs/*.jar ${{ secrets.EC2_USER }}@${{ secrets.AWS_EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
+        scp -i key.pem -o StrictHostKeyChecking=no ./backend/build/libs/*.jar ec2-user@${{ secrets.AWS_EC2_HOST }}:/home/ec2-user/app.jar
 
     - name: SSH into EC2 and deploy
       run: |
