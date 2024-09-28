@@ -26,26 +26,33 @@ jobs:
       working-directory: ./backend  # backend 디렉토리로 이동
       run: ./gradlew build  # Gradle 빌드 실행
 
+    - name: List JAR files after build
+      run: ls -l ./backend/build/libs/
+  
+
     - name: Transfer JAR file to EC2
       run: |
         echo "${{ secrets.AWS_SSH_KEY }}" > key.pem
         chmod 400 key.pem
-        scp -i key.pem -o StrictHostKeyChecking=no backend/build/libs/*.jar ${{ secrets.EC2_USER }}@${{ secrets.AWS_EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
+        # JAR 파일을 EC2로 전송하고 'app.jar'로 저장
+        scp -i key.pem -o StrictHostKeyChecking=no ./backend/build/libs/backend-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USER }}@${{ secrets.AWS_EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
 
     - name: SSH into EC2 and deploy
       run: |
         ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
-        pkill -f 'java' || true
-        nohup java -jar /home/${{ secrets.EC2_USER }}/app.jar > /dev/null 2>&1 &
+        pkill -f 'java' || true  # 기존 실행 중인 애플리케이션 중지
+        nohup java -jar /home/${{ secrets.EC2_USER }}/app.jar > /dev/null 2>&1 &  # 새로운 JAR 실행
         EOF
 
     - name: Set environment variables and run on EC2
       run: |
         ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
+        # 환경 변수 설정
         export TRAVVELCOME_DB_PASSWORD="${{ secrets.TRAVVELCOME_DB_PASSWORD }}"
         export OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}"
         export OPENAI_MODEL_ID="${{ secrets.OPENAI_MODEL_ID }}"
         export KAKAO_CLIENT_ID="${{ secrets.KAKAO_CLIENT_ID }}"
         export KAKAO_REDIRECT_URI="${{ secrets.KAKAO_REDIRECT_URI }}"
+        # 애플리케이션 실행
         nohup java -jar /home/${{ secrets.EC2_USER }}/app.jar > /dev/null 2>&1 &
         EOF
