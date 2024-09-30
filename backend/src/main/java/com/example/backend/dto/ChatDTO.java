@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 public class ChatDTO {
     private String chatId;
-    private String sent;
+    private String sent; // 보낸 message
     private String received;
     private Long landmarkId;
     private String tagId;
