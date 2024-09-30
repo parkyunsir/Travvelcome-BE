@@ -39,7 +39,7 @@ public class LandmarkController {
     return ApiResponse.onSuccess(result);
   }
 
-  @Operation(summary = "랜드마크 목록 조회 API", description = "랜드마크 리스트 페이지에서의 목록 조회 API입니다. category(nature, history, culture)")
+  @Operation(summary = "랜드마크 목록 조회 API", description = "랜드마크 리스트 페이지에서의 목록 조회 API입니다. category(nature, knowledge, culture)")
   @GetMapping("")
   public ApiResponse<List<LandmarkPreViewDTO>> getLandmarks(@RequestParam(name = "category", required = false) String category,
       @RequestParam(name = "interest", required = false) List<Category> interests) {
