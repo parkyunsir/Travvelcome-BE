@@ -40,7 +40,7 @@ jobs:
       run: |
         ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
         # Nginx를 재시작하여 HTTPS 적용 (이미 Nginx 설정이 완료된 경우)
-        sudo systemctl restart nginx
+        sudo systemctl restart caddy
 
         # 기존 실행 중인 애플리케이션 중지
         pkill -f 'java' || true  
