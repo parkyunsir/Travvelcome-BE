@@ -210,15 +210,15 @@ public class LandmarkServiceImpl implements LandmarkService {
     switch (category.toLowerCase()) {
       case "nature":
         return Arrays.asList(
-            Category.MOUNTAIN, Category.BEACH, Category.TRAIL, Category.ARBORETUM, Category.PARK, Category.SCENERY
+            Category.MOUNTAIN, Category.BEACH_ISLAND, Category.GARDEN, Category.TRAIL, Category.WATERFALL, Category.DRIVE
         );
-      case "history":
+      case "knowledge":
         return Arrays.asList(
-            Category.MUSEUM, Category.PALACE, Category.HISTORIC_SITE, Category.FOLK_VILLAGE, Category.TRADITIONAL_EXPERIENCE
+            Category.HISTORY, Category.ECOLOGY_SCIENCE, Category.MYTH_LEGEND, Category.STORY_FIGURES
         );
       case "culture":
         return Arrays.asList(
-            Category.LOCAL_CULTURE, Category.HUMANITIES, Category.ART_GALLERY, Category.RELIGIOUS_SITE, Category.STORY
+            Category.EXHIBITION, Category.ART, Category.CRAFT_EXPERIENCE, Category.ACTIVITY, Category.THEME_PARK, Category.TASTE, Category.RELIGION
         );
       default:
         throw new TempHandler(ErrorStatus.INVALID_CATEGORY);
