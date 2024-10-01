@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,10 +24,11 @@ public class KakaoLoginController {
     @Value("${kakao.redirect.uri}")
     private String redirect_uri;
 
-    @GetMapping
-    public ResponseEntity<?> loginPage() {
+    @GetMapping("/page")
+    public String loginPage(Model model) {
         String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id="+client_id+"&redirect_uri="+redirect_uri;
-        // 카카오 인증 후 돌아올 때는 "code" 파라미터가 함께 옵니다.
-        return ResponseEntity.ok(null);
+        model.addAttribute("location", location);
+
+        return "login";
     }
 }
