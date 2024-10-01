@@ -36,6 +36,8 @@ public class KakaoController {
         KakaoDto getUserDTO = kakaoService.getUserInfo(accessToken);
         UsersEntity getUserEntity = KakaoDto.toEntity(getUserDTO);
 
+        log.info("test");
+
 
 //        UsersEntity setUserEntity = kakaoService.updateUserProfile(accessToken, getUserEntity);
 //

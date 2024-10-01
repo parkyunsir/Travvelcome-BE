@@ -6,7 +6,7 @@ spring:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
 #            client-secret: ${KAKAO_CLIENT_SECRET}  # 필요하다면 추가
-            scope: profile, email
+            scope: profile_nickname
             redirect-uri: ${KAKAO_REDIRECT_URI}  # redirect URI
             authorization-grant-type: authorization_code
         provider:
