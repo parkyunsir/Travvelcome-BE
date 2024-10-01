@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import com.example.backend.dto.KakaoTokenResponseDto;
 import com.example.backend.dto.KakaoDto;
+import com.example.backend.model.UsersEntity;
 import com.example.backend.repository.UserRepository;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class KakaoService {
     @Autowired
     public KakaoService(@Value("${kakao.client.id}") String clientId) {
         this.clientId = clientId;
-        KAUTH_TOKEN_URL_HOST = "https://kauth.kakao.com";
+        KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
         KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
     }
 
@@ -58,6 +59,7 @@ public class KakaoService {
 
     // 사용자 정보 (/v2/user/me)
     public KakaoDto getUserInfo(String accessToken) {
+
         KakaoDto userInfo = WebClient.create(KAUTH_USER_URL_HOST)
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -78,90 +80,8 @@ public class KakaoService {
         return userInfo;
     }
 
-    // 사용자 정보 저장
-//    public KakaoDto saveUserInfo(String accessToken, KakaoDto userInfoToUpdate) {
-//        // userInfoToUpdate는 수정할 사용자 정보를 담고 있어야 합니다.
-//
-//        KakaoDto updatedUserInfo = WebClient.create(KAUTH_USER_URL_HOST)
-//                .post()
-//                .uri(uriBuilder -> uriBuilder
-//                        .scheme("https")
-//                        .path("/v1/user/update_profile")
-//                        .build(true))
-//                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken) // access token 인가
-//                .header(HttpHeaders.CONTENT_TYPE, "application/json") // JSON으로 설정
-//                .bodyValue(userInfoToUpdate) // 요청 본문을 JSON으로 설정
-//                .retrieve()
-//                // TODO: Custom Exception
-//                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
-//                    log.error("Client Error: {}", clientResponse.bodyToMono(String.class).block());
-//                    return Mono.error(new RuntimeException("Invalid Parameter"));
-//                })
-//                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
-//                    log.error("Server Error: {}", clientResponse.bodyToMono(String.class).block());
-//                    return Mono.error(new RuntimeException("Internal Server Error"));
-//                })
-//                .bodyToMono(KakaoDto.class)
-//                .block();
-//
-//        log.info("Updated ID ---> {} ", updatedUserInfo.getId());
-//        return updatedUserInfo;
-//    }
 
-//    @Transactional
-//    public UsersEntity updateUserProfile(String accessToken, UsersEntity user) {
-//        // Create a request body with the necessary fields
-//        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-//        // Add the fields you want to update
-//        body.add("nickname", user.getNickname());
-//        body.add("profile_image", user.getProfileImageUrl());
-//        body.add("thumbnail_image", user.getThumbnailImageUrl());
-//
-//        log.info("Updating user profile with data: {}", body);
-//
-//        // Make a request to the Kakao update profile API
-//        ResponseEntity<String> response = WebClient.create(KAUTH_USER_URL_HOST)
-//                .post()
-//                .uri(uriBuilder -> uriBuilder
-//                        .scheme("https")
-//                        .path("/v1/user/update_profile")
-//                        .build(true))
-//                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-//                .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
-//                .bodyValue(body)
-//                .retrieve()
-//                // Handle response and error
-//                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
-//                    // Log the error details
-//                    return clientResponse.bodyToMono(String.class)
-//                            .flatMap(errorResponse -> {
-//                                log.error("Error Response: {}", errorResponse);
-//                                return Mono.error(new RuntimeException("Invalid Parameter: " + errorResponse));
-//                            });
-//                })
-//                .onStatus(HttpStatusCode::is5xxServerError, clientResponse ->
-//                        Mono.error(new RuntimeException("Internal Server Error")))
-//                .toEntity(String.class)
-//                .block();
-//
-//        if (response.getStatusCode() == HttpStatus.OK) {
-//            log.info("User profile updated successfully.");
-//        } else {
-//            log.error("Failed to update user profile. Response: {}", response.getBody());
-//            throw new RuntimeException("Failed to update user profile.");
-//        }
-//
-//        // Optionally, save the updated user info to your database
-//        userRepository.save(user);
-//
-//        return user;
-//    }
-
-
-    // 사용자 정보 가져오기
-//    public UsersEntity getUserInfo(Long id) {
-//        return userRepository.findById(id)
-//                .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
-//    }
-
+    public UsersEntity saveUser(UsersEntity user) {
+        return userRepository.save(user);
+    }
 }
