@@ -24,7 +24,7 @@ public class KakaoLoginController {
     @Value("${kakao.redirect.uri}")
     private String redirect_uri;
 
-    @GetMapping("/page")
+    @GetMapping()
     public String loginPage(Model model) {
         String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id="+client_id+"&redirect_uri="+redirect_uri;
         model.addAttribute("location", location);
