@@ -20,7 +20,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/", "/login", "/callback/**").permitAll()  // requestMatchers로 변경
-                .anyRequest().authenticated()
+                .anyRequest().permitAll() // 일단 이렇게..
             )
             .oauth2Login(oauth2 -> oauth2
                 .defaultSuccessUrl("/home", true)  // 로그인 성공 후 리다이렉트할 URL
