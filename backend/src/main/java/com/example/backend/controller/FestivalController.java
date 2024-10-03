@@ -19,6 +19,12 @@ public class FestivalController {
 
   private final FestivalService festivalService;
 
+  @GetMapping("/fetch-festivals")
+  public String fetchAndSaveFestivals() {
+    festivalService.fetchAndSaveFestivals();
+    return "Landmarks have been fetched and saved successfully!";
+  }
+
   @Operation(summary = "행사 정보 조회 API", description = "행사 정보 조회 API입니다.")
   @GetMapping("")
   public ApiResponse<List<FestivalDTO>> getFestivals() {

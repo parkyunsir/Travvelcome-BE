@@ -10,8 +10,6 @@ public interface LandmarkService {
 
   void fetchAndSaveLandmarks();
 
-  void fetchAndSaveFestivals();
-
   List<LandmarkPreViewDTO> searchLandmark(String keyword);
 
   List<LandmarkPreViewDTO> getLandmarks(String category, List<Category> interests);
