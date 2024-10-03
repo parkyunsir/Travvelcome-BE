@@ -32,6 +32,12 @@ public class LandmarkController {
     return "Landmarks have been fetched and saved successfully!";
   }
 
+  @GetMapping("/fetch-festivals")
+  public String fetchAndSaveFestivals() {
+    landmarkService.fetchAndSaveFestivals();
+    return "Landmarks have been fetched and saved successfully!";
+  }
+
   @Operation(summary = "랜드마크 검색 API", description = "랜드마크 리스트 페이지에서의 검색 API입니다. 검색어 RequestParam 입니다!")
   @GetMapping("/search")
   public ApiResponse<List<LandmarkPreViewDTO>> searchLandmark(@RequestParam("keyword") String keyword) {
