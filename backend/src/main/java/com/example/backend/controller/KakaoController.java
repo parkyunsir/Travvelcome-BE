@@ -21,7 +21,7 @@ public class KakaoController {
     @Autowired
     private KakaoService kakaoService;
 
-    @GetMapping("/frontend") // 사용자 정보
+    @GetMapping("/frontend/callback") // 사용자 정보
     public ResponseEntity<?> callback(@RequestParam("code") String code) {
         String accessToken = kakaoService.getAccessTokenFromKakao(code);
 
@@ -30,6 +30,6 @@ public class KakaoController {
 
         UsersEntity savedEntity = kakaoService.saveUser(getUserEntity);
 
-        return ResponseEntity.ok().body(savedEntity); // 정상적으로 출력됨... 근데 저장이 안 돼
+        return ResponseEntity.ok().body(savedEntity);
     }
 }
