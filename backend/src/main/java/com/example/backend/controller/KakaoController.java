@@ -21,7 +21,7 @@ public class KakaoController {
     @Autowired
     private KakaoService kakaoService;
 
-    @GetMapping("/callback") // 사용자 정보
+    @GetMapping("/frontend/callback") // 사용자 정보
     public ResponseEntity<?> callback(@RequestParam("code") String code) {
         String accessToken = kakaoService.getAccessTokenFromKakao(code);
 
