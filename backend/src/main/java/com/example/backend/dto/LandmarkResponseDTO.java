@@ -1,8 +1,6 @@
 package com.example.backend.dto;
 
 import com.example.backend.model.enums.Category;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

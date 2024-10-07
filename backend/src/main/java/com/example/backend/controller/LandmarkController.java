@@ -68,10 +68,11 @@ public class LandmarkController {
     return ApiResponse.onSuccess(result);
   }
 
-  @Operation(summary = "지도 랜드마크 조회 API", description = "지도에서의 랜드마크를 조회하는 기능입니다. 로그인된 유저의 관심사 정보를 통해 랜드마크를 반환합니다")
+  @Operation(summary = "지도 랜드마크 조회 API", description = "지도에서의 랜드마크를 조회하는 기능입니다. 로그인된 유저의 관심사 정보를 통해 랜드마크를 반환합니다. userId에 토큰을 입력해주세요.")
   @GetMapping("/map")
   public ApiResponse<List<LandmarkMapDTO>> getMapLandmarks(@RequestParam String userId) {
-    List<LandmarkMapDTO> result = landmarkService.getMapLandmarks(Long.parseLong(userId));
+    KakaoDto kakaoDto = kakaoService.getUserInfo(userId);
+    List<LandmarkMapDTO> result = landmarkService.getMapLandmarks(kakaoDto.getId());
     return ApiResponse.onSuccess(result);
   }
 

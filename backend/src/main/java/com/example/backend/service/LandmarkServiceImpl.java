@@ -5,11 +5,13 @@ import com.example.backend.apiPayload.exception.handler.TempHandler;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkMapDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
+import com.example.backend.model.Festival;
 import com.example.backend.model.Interest;
 import com.example.backend.model.Landmark;
 import com.example.backend.model.Stamp;
 import com.example.backend.model.UsersEntity;
 import com.example.backend.model.enums.Category;
+import com.example.backend.repository.FestivalRepository;
 import com.example.backend.repository.LandmarkRepository;
 import com.example.backend.repository.StampRepository;
 import com.example.backend.repository.UserRepository;
@@ -29,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.w3c.dom.Element;
 
 @Service
 @RequiredArgsConstructor
