@@ -65,7 +65,8 @@ public class ChatController {
                 .collect(Collectors.toList());
 
         Map<String, Object> response = new HashMap<>();
-        response.put("landmarkTitle", landmark.getTitle());
+        response.put("landmarkTitle", landmark.getTitle()); // landmark Title
+        response.put("landmarkImage",landmark.getImageUrl()); // landmark ImageUrl
         response.put("chatList", dtos);
 
         return ResponseEntity.ok().body(response);
@@ -81,7 +82,7 @@ public class ChatController {
     }
 
 
-    // 목록 - landmark 대화 list
+    // 목록 - (최신순) landmark 대화 list
     @GetMapping("/list")
     public ResponseEntity<?> showChatList(){
         List<Map<String, Object>> entities =  chatService.showList();
