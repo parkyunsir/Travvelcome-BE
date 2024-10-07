@@ -1,4 +1,4 @@
-//package com.example.backend.dto;
-//
-//public class TagDTO {
-//}
+package com.example.backend.dto;
+
+public class TagDTO {
+}
