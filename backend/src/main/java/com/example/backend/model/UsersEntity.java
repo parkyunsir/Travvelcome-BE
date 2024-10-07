@@ -2,10 +2,10 @@ package com.example.backend.model;
 
 import jakarta.persistence.*;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.Map;
+
+import lombok.*;
+import org.springframework.security.core.userdetails.User;
 //import java.util.HashMap;
 
 @Builder
@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Entity
+@Getter
+@Setter
 @Table(name="Users")
 public class UsersEntity {
 
@@ -25,4 +27,9 @@ public class UsersEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Interest> interests;
+
+    public UsersEntity(Long id, String nickname) {
+        this.id = id;
+        this.nickname = nickname;
+    }
 }
