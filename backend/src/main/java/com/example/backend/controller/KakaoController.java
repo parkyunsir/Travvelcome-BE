@@ -21,10 +21,17 @@ public class KakaoController {
     @Autowired
     private KakaoService kakaoService;
 
-    @GetMapping("/callback") // 사용자 정보
+    @GetMapping("/callback") // 토큰 값 출력
     public ResponseEntity<?> callback(@RequestParam("code") String code) {
         String accessToken = kakaoService.getAccessTokenFromKakao(code);
 
+        userInfo(accessToken);
+
+        return ResponseEntity.ok().body(accessToken);
+    }
+
+    @GetMapping("/userInfo") // 사용자 정보
+    public  ResponseEntity<?> userInfo(String accessToken) {
         KakaoDto userInfo = kakaoService.getUserInfo(accessToken);
         UsersEntity getUserEntity = KakaoDto.toEntity(userInfo);
 
