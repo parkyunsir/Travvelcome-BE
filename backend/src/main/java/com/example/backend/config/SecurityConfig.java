@@ -19,7 +19,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/", "/login", "/callback/**", "/swagger-ui/**").permitAll()  // requestMatchers로 변경
+                .requestMatchers("/", "/login", "/callback/**", "/swagger-ui/index.html#/**").permitAll()  // requestMatchers로 변경
 //              .anyRequest().permitAll() // 일단 이렇게..
                 .anyRequest().authenticated() //
             )
