@@ -47,4 +47,21 @@ public class KakaoController {
                     .body("서버 에러, 관리자에게 문의 바랍니다.");
         }
     }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<?> kakaoLogout(String accessToken) {
+
+        if (accessToken != null && !accessToken.isEmpty()) {
+            try {
+                Long userId = kakaoService.logout(accessToken); // 로그아웃 처리
+
+                return ResponseEntity.ok().body(userId); // 성공 시 userId 반환
+            } catch (RuntimeException e) {
+                return ResponseEntity.badRequest().body(e.getMessage()); // 예외 발생 시 에러 메시지 반환
+            }
+        } else {
+            return ResponseEntity.badRequest().body("accessToken is null or empty"); // accessToken이 없는 경우 처리
+        }
+    }
 }
