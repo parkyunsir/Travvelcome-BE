@@ -28,6 +28,7 @@ public class InterestController {
     @Autowired
     private KakaoService kakaoService;
 
+    // 로그인 시 최초
     // 관심사 등록
     @PostMapping()
     public Interest addInterest(@RequestParam Long userId, @RequestParam Category category) {
