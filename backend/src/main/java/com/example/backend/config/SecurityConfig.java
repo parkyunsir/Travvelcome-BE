@@ -19,9 +19,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/", "/login", "/callback/**").permitAll()  // requestMatchers로 변경
-              .anyRequest().permitAll() // 일단 이렇게..
-//                .anyRequest().authenticated() //
+                .requestMatchers("/", "/login", "/callback/**", "/swagger-ui/**").permitAll()  // requestMatchers로 변경
+//              .anyRequest().permitAll() // 일단 이렇게..
+                .anyRequest().authenticated() //
             )
             .oauth2Login(oauth2 -> oauth2
                 .defaultSuccessUrl("/main", true)  // 로그인 성공 후 리다이렉트할 URL
