@@ -4,6 +4,9 @@ import com.example.backend.dto.KakaoTokenResponseDto;
 import com.example.backend.dto.KakaoDto;
 import com.example.backend.model.UsersEntity;
 import com.example.backend.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -78,6 +83,26 @@ public class KakaoService {
         log.info("ID ---> {} ", userInfo.getId());
 //        log.info("Email ---> {} ", userInfo.getKakaoAccount().getEmail()); // 현재 이메일은 null 값이다.
         return userInfo;
+    }
+
+    // 로그아웃
+    public Long logout(String accessToken) {
+
+        Long userId = WebClient.create(KAUTH_USER_URL_HOST)
+                .post()  // 로그아웃은 POST 요청입니다.
+                .uri("/v1/user/logout")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        clientResponse -> Mono.error(new RuntimeException("Invalid Parameter: 4xx error")))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        clientResponse -> Mono.error(new RuntimeException("Internal Server Error: 5xx error")))
+                .bodyToMono(Long.class)
+                .block();
+
+        log.info("LOGOUT ID ---> {} ", userId);
+//        log.info("Email ---> {} ", userInfo.getKakaoAccount().getEmail()); // 현재 이메일은 null 값이다.
+        return userId;
     }
 
 
