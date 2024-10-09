@@ -17,22 +17,26 @@ import java.util.List;
 @Data
 public class InterestDTO {
     private Long id;
-    private UsersEntity user;
     private Category category;
+    private List<Category> categories;
     private Tag tag;
 
     public InterestDTO(Interest entity) {
         this.id = entity.getId();
-        this.user = entity.getUser();
         this.category = entity.getCategory();
+        this.categories = entity.getCategories();
         this.tag = entity.getTag();
+    }
+
+    public InterestDTO(List<Interest> entity) {
+
     }
 
     public Interest toEntity(final InterestDTO dto) {
         return Interest.builder()
                 .id(dto.getId())
-                .user(dto.getUser())
                 .category(dto.getCategory())
+                .categories(dto.getCategories())
                 .tag(dto.getTag())
                 .build();
     }

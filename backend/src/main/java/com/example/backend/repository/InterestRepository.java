@@ -17,6 +17,7 @@ public interface InterestRepository  extends JpaRepository<Interest, Long> {
 
     // 모든 관심사
     List<Interest> findAll();
+
     // List<Interest> findByUserId(Long userId);
     List<Interest> findByUserIdAndCategory(Long userId, Category category);
 }

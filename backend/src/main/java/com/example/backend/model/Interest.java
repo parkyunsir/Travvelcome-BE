@@ -5,6 +5,8 @@ import com.example.backend.model.enums.Tag;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Builder
 @NoArgsConstructor
@@ -25,6 +27,8 @@ public class Interest {
   @Enumerated(EnumType.STRING)
   @Column(name = "category")
   private Category category;
+
+  private List<Category> categories;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "tag")
