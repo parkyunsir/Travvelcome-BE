@@ -26,7 +26,8 @@ public class ChatController {
     private LandmarkRepository landmarkRepository;
 
     // 대화 - 질문하기 , 대화하기
-    @Operation(summary = "챗봇 대화 API", description = "챗봇과 대화할 수 있는 API입니다. sent: 내가 보낸 메세지, received: gpt가 자동 생성하는 메세지입니다. landmarkId RequestParam 입니다!")
+    @Operation(summary = "챗봇 대화 API", description = "챗봇과 대화할 수 있는 API입니다. sent: 내가 보낸 메세지, received: gpt가 자동 생성하는 메세지입니다." +
+            " sent와 landmarkId만 넣어서 execute 해주세요. landmarkId RequestParam 입니다!")
     @PostMapping // /chat?landmarkId={}
     public ResponseEntity<?> createResponse(@RequestParam("landmarkId") Long landmarkId, @RequestBody ChatDTO dto) {
         try {
@@ -91,7 +92,8 @@ public class ChatController {
         return ResponseEntity.ok().body(dtos);
     }
 
-    @Operation(summary = "[/chatting/history] 챗봇 history 검색 - 단어 추출 API", description = "챗봇과 대화 내역을 검색하면, 검색된 단어만 추출하는 API입니다. (ex- 나는 학교에 갑니다. text에 '학교' 입력시 학교에 return) landmarkId RequestParam, 검색어(text) RequestParam 입니다!")
+    @Operation(summary = "[/chatting/history] 챗봇 history 검색 - 단어 추출 API", description = "챗봇과 대화 내역을 검색하면, 검색된 단어만 추출하는 API입니다." +
+            " (ex- 나는 학교에 갑니다. text에 '학교' 입력 시 '학교에' return) landmarkId RequestParam, 검색어(text) RequestParam 입니다!")
     @GetMapping("/search/word") // /chat/search/word?landmarkId={}&text={}
     public ResponseEntity<?> searchLandmarkChattingWord(@RequestParam("landmarkId") Long landmarkId, @RequestParam("text") String text) {
 
