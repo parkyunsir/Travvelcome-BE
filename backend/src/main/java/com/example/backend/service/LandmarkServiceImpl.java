@@ -5,6 +5,7 @@ import com.example.backend.apiPayload.exception.handler.TempHandler;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkMapDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
+import com.example.backend.dto.LandmarkResponseDTO.LandmarkRecommendDTO;
 import com.example.backend.model.Festival;
 import com.example.backend.model.Interest;
 import com.example.backend.model.Landmark;
@@ -192,6 +193,31 @@ public class LandmarkServiceImpl implements LandmarkService {
         .landmark(landmark)
         .build();
     stampRepository.save(stamp);
+  }
+
+  @Override
+  public List<LandmarkRecommendDTO> getRecommendedLandmarks(double mapX, double mapY, long userId) {
+    UsersEntity user = userRepository.findById(userId).orElseThrow(() -> new TempHandler(ErrorStatus.USER_NOT_FOUND));
+
+    List<Category> userCategories = user.getInterests().stream()
+        .map(Interest::getCategory)
+        .collect(Collectors.toList());
+
+    double radius = 1.0; // 조회할 반경 (km)
+
+    List<Landmark> landmarks = landmarkRepository.findByCategoriesIn(userCategories).stream()
+        .filter(landmark -> calculateDistance(mapX, mapY, landmark.getMapX(), landmark.getMapY()) <= radius)
+        .collect(Collectors.toList());;
+
+    return landmarks.stream()
+        .map(landmark -> LandmarkRecommendDTO.builder()
+            .landmarkId(landmark.getId())
+            .title(landmark.getTitle())
+            .categories(landmark.getCategories())
+            .imageUrl(landmark.getImageUrl())
+            .distance(calculateDistance(mapX, mapY, landmark.getMapX(), landmark.getMapY()))
+            .build())
+        .collect(Collectors.toList());
   }
 
   // Haversine 공식을 사용한 거리 계산 (단위: km)

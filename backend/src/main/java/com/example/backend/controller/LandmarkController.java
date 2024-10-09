@@ -5,6 +5,7 @@ import com.example.backend.dto.KakaoDto;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkFindDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkMapDTO;
 import com.example.backend.dto.LandmarkResponseDTO.LandmarkPreViewDTO;
+import com.example.backend.dto.LandmarkResponseDTO.LandmarkRecommendDTO;
 import com.example.backend.model.enums.Category;
 import com.example.backend.service.KakaoService;
 import com.example.backend.service.LandmarkService;
@@ -82,6 +83,14 @@ public class LandmarkController {
     KakaoDto kakaoDto = kakaoService.getUserInfo(userId);
     landmarkService.findLandmark(landmarkId, kakaoDto.getId());
     return ApiResponse.onSuccess(landmarkId);
+  }
+
+  @Operation(summary = "랜드마크 추천 조회 API", description = "추천 랜드마크를 조회합니다. mapX, mapY에 사용자의 위치 좌표를 입력해주세요. userId에 토큰을 입력해주세요.")
+  @GetMapping("/recommend")
+  public ApiResponse<List<LandmarkRecommendDTO>> getRecommendedLandmarks(@RequestParam(name = "mapX") double mapX, @RequestParam(name = "mapY") double mapY, @RequestParam String userId) {
+    KakaoDto kakaoDto = kakaoService.getUserInfo(userId);
+    List<LandmarkRecommendDTO> result = landmarkService.getRecommendedLandmarks(mapX, mapY, kakaoDto.getId());
+    return ApiResponse.onSuccess(result);
   }
 
 }
