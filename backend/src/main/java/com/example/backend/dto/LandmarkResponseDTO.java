@@ -45,4 +45,16 @@ public class LandmarkResponseDTO {
     String addr2;
   }
 
+  @Builder
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class LandmarkRecommendDTO {
+    Long landmarkId;
+    String title;
+    List<Category> categories;
+    String imageUrl;
+    double distance;
+  }
+
 }
