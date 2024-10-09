@@ -3,7 +3,11 @@ package com.example.backend.repository;
 import com.example.backend.model.Landmark;
 import com.example.backend.model.enums.Category;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface LandmarkRepository extends JpaRepository<Landmark, Long> {
 
@@ -18,4 +22,8 @@ public interface LandmarkRepository extends JpaRepository<Landmark, Long> {
 
   // 모든 id를 통해 Landmark Entity 반환
   List<Landmark> findAllById(Long id);
+
+  // id를 통해 title 추출
+  @Query("SELECT l.title FROM Landmark l WHERE l.id = :id")
+  Optional<String> findTitleById(@Param("id") Long id);
 }

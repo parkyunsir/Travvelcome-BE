@@ -6,8 +6,12 @@ import com.example.backend.service.KakaoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 // 추후에 login.html 파일 지우고 리액트와 연결시키기
@@ -21,15 +25,43 @@ public class KakaoController {
     @Autowired
     private KakaoService kakaoService;
 
-    @GetMapping("/frontend") // 사용자 정보
+    @GetMapping("/callback") // 사용자 정보
     public ResponseEntity<?> callback(@RequestParam("code") String code) {
-        String accessToken = kakaoService.getAccessTokenFromKakao(code);
+        try {
+            String accessToken = kakaoService.getAccessTokenFromKakao(code);
 
-        KakaoDto userInfo = kakaoService.getUserInfo(accessToken);
-        UsersEntity getUserEntity = KakaoDto.toEntity(userInfo);
+            KakaoDto userInfo = kakaoService.getUserInfo(accessToken);
+            UsersEntity getUserEntity = KakaoDto.toEntity(userInfo);
 
-        UsersEntity savedEntity = kakaoService.saveUser(getUserEntity);
+            UsersEntity savedEntity = kakaoService.saveUser(getUserEntity);
 
-        return ResponseEntity.ok().body(savedEntity); // 정상적으로 출력됨... 근데 저장이 안 돼
+            // 토큰과 사용자 정보를 Map으로 묶어서 반환
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("accessToken", accessToken); // 토큰 추가
+            responseBody.put("userInfo", savedEntity); // 사용자 정보 추가
+
+            return ResponseEntity.ok().body(responseBody);
+        } catch (Exception e) {
+            // 6. 예외 발생 시 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 에러, 관리자에게 문의 바랍니다.");
+        }
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<?> kakaoLogout(String accessToken) {
+
+        if (accessToken != null && !accessToken.isEmpty()) {
+            try {
+                Long userId = kakaoService.logout(accessToken); // 로그아웃 처리
+
+                return ResponseEntity.ok().body(userId); // 성공 시 userId 반환
+            } catch (RuntimeException e) {
+                return ResponseEntity.badRequest().body(e.getMessage()); // 예외 발생 시 에러 메시지 반환
+            }
+        } else {
+            return ResponseEntity.badRequest().body("accessToken is null or empty"); // accessToken이 없는 경우 처리
+        }
     }
 }

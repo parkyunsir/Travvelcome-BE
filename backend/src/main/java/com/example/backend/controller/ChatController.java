@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("api/chat")
+@RequestMapping("/chat")
 public class ChatController {
     @Autowired
     private ChatService chatService;
@@ -25,7 +25,7 @@ public class ChatController {
     private LandmarkRepository landmarkRepository;
 
     // 대화 - 질문하기 , 대화하기
-    @PostMapping
+    @PostMapping // /chat?landmarkId={}
     public ResponseEntity<?> createResponse(@RequestParam("landmarkId") Long landmarkId, @RequestBody ChatDTO dto) {
         try {
             // landmark Id 같은지 비교
@@ -52,8 +52,10 @@ public class ChatController {
         }
     }
 
+
+    // [/chatting/history]
     // 대화 - 대화 내역 보여주기
-    @GetMapping // ?landmarkId={}
+    @GetMapping // /chat?landmarkId={}
     public ResponseEntity<?> showLandmarkChat(@RequestParam("landmarkId") Long landmarkId) {
 
         Landmark landmark = landmarkRepository.findById(landmarkId)
@@ -65,14 +67,16 @@ public class ChatController {
                 .collect(Collectors.toList());
 
         Map<String, Object> response = new HashMap<>();
-        response.put("landmarkTitle", landmark.getTitle());
+        response.put("landmarkTitle", landmark.getTitle()); // landmark Title
+        response.put("landmarkImage",landmark.getImageUrl()); // landmark ImageUrl
         response.put("chatList", dtos);
 
         return ResponseEntity.ok().body(response);
     }
 
+    // [/chatting/history]
     // 대화 - 대화 검색하기
-    @GetMapping("/search") // ?landmarkId={}&text={}
+    @GetMapping("/search") // /chat/search?landmarkId={}&text={}
     public ResponseEntity<?> searchLandmarkChatting(@RequestParam("landmarkId") Long landmarkId, @RequestParam("text") String text) {
         List<ChatEntity> entities = chatService.searchChatting(text);
 
@@ -80,17 +84,18 @@ public class ChatController {
         return ResponseEntity.ok().body(dtos);
     }
 
-
-    // 목록 - landmark 대화 list
-    @GetMapping("/list")
+    // [/chatting]
+    // 목록 - (최신순) landmark 대화 list
+    @GetMapping("/list") // /chat/list
     public ResponseEntity<?> showChatList(){
         List<Map<String, Object>> entities =  chatService.showList();
 
         return convertEntityToDto(entities);
     }
 
+    // [/chatting]
     // 목록 - landmark 검색
-    @GetMapping("/list/search") // api/chat/search?title={}
+    @GetMapping("/list/search") // /chat/list/search?title={}
     public ResponseEntity<?> searchLandmarkList(@RequestParam("title") String title) {
         List<Map<String, Object>> entities = chatService.searchLandmark(title);
 
