@@ -25,8 +25,8 @@ public class ChatController {
     @Autowired
     private LandmarkRepository landmarkRepository;
 
-    @Operation(summary = "챗봇 대화 API", description = "챗봇과 대화할 수 있는 API입니다. landmarkId RequestParam 입니다!")
     // 대화 - 질문하기 , 대화하기
+    @Operation(summary = "챗봇 대화 API", description = "챗봇과 대화할 수 있는 API입니다. sent: 내가 보낸 메세지, received: gpt가 자동 생성하는 메세지입니다. landmarkId RequestParam 입니다!")
     @PostMapping // /chat?landmarkId={}
     public ResponseEntity<?> createResponse(@RequestParam("landmarkId") Long landmarkId, @RequestBody ChatDTO dto) {
         try {
@@ -37,7 +37,7 @@ public class ChatController {
                 ApiResponse<ChatDTO> response = ApiResponse.onFailure("400", error, null);
                 return ResponseEntity.badRequest().body(response);
             }
-            
+
             // - 정상 처리
             ChatEntity entity = ChatDTO.toEntity(dto);
             entity.setChatId(null);
@@ -54,9 +54,9 @@ public class ChatController {
         }
     }
 
-    @Operation(summary = "[/chatting/history] 챗봇 history API", description = "챗봇과 대화 내역을 보여주는 API입니다. landmarkId RequestParam 입니다!")
     // [/chatting/history]
     // 대화 - 대화 내역 보여주기
+    @Operation(summary = "[/chatting/history] 챗봇 history API", description = "챗봇과 대화 내역을 보여주는 API입니다. landmarkId RequestParam 입니다!")
     @GetMapping // /chat?landmarkId={}
     public ResponseEntity<?> showLandmarkChat(@RequestParam("landmarkId") Long landmarkId) {
 
@@ -76,20 +76,36 @@ public class ChatController {
         return ResponseEntity.ok().body(response);
     }
 
-    @Operation(summary = "[/chatting/history] 챗봇 history 검색 API", description = "챗봇과 대화 내역을 검색할 수 있는 API입니다. landmarkId RequestParam, 검색어(text) RequestParam 입니다!")
     // [/chatting/history]
     // 대화 - 대화 검색하기
+    @Operation(summary = "[/chatting/history] 챗봇 history 검색 API", description = "챗봇과 대화 내역을 검색할 수 있는 API입니다. landmarkId RequestParam, 검색어(text) RequestParam 입니다!")
     @GetMapping("/search") // /chat/search?landmarkId={}&text={}
     public ResponseEntity<?> searchLandmarkChatting(@RequestParam("landmarkId") Long landmarkId, @RequestParam("text") String text) {
-        List<ChatEntity> entities = chatService.searchChatting(text);
+
+        Landmark landmark = landmarkRepository.findById(landmarkId)
+                .orElseThrow(() -> new IllegalArgumentException("Landmark not found"));
+
+        List<ChatEntity> entities = chatService.searchChatting(landmarkId, text);
 
         List<ChatDTO> dtos = entities.stream().map(ChatDTO::new).collect(Collectors.toList());
         return ResponseEntity.ok().body(dtos);
     }
 
-    @Operation(summary = "[/chatting] 챗봇 목록 API", description = "대화한 챗봇 목록을 보여주는 API입니다!")
+    @Operation(summary = "[/chatting/history] 챗봇 history 검색 - 단어 추출 API", description = "챗봇과 대화 내역을 검색하면, 검색된 단어만 추출하는 API입니다. (ex- 나는 학교에 갑니다. text에 '학교' 입력시 학교에 return) landmarkId RequestParam, 검색어(text) RequestParam 입니다!")
+    @GetMapping("/search/word") // /chat/search/word?landmarkId={}&text={}
+    public ResponseEntity<?> searchLandmarkChattingWord(@RequestParam("landmarkId") Long landmarkId, @RequestParam("text") String text) {
+
+        Landmark landmark = landmarkRepository.findById(landmarkId)
+                .orElseThrow(() -> new IllegalArgumentException("Landmark not found"));
+
+        List<ChatDTO> dtos = chatService.searchChattingWord(landmarkId, text);
+
+        return ResponseEntity.ok().body(dtos);
+    }
+
     // [/chatting]
     // 목록 - (최신순) landmark 대화 list
+    @Operation(summary = "[/chatting] 챗봇 목록 API", description = "대화한 챗봇 목록을 보여주는 API입니다!")
     @GetMapping("/list") // /chat/list
     public ResponseEntity<?> showChatList(){
         List<Map<String, Object>> entities =  chatService.showList();
@@ -97,9 +113,9 @@ public class ChatController {
         return convertEntityToDto(entities);
     }
 
-    @Operation(summary = "[/chatting] 챗봇 목록 검색 API", description = "대화한 챗봇 목록에서 관광지를 검색할 수 있는 API입니다! 랜드마크이름(title) RequestParam 입니다!")
     // [/chatting]
     // 목록 - landmark 검색
+    @Operation(summary = "[/chatting] 챗봇 목록 검색 API", description = "대화한 챗봇 목록에서 관광지를 검색할 수 있는 API입니다! 랜드마크이름(title) RequestParam 입니다!")
     @GetMapping("/list/search") // /chat/list/search?title={}
     public ResponseEntity<?> searchLandmarkList(@RequestParam("title") String title) {
         List<Map<String, Object>> entities = chatService.searchLandmark(title);

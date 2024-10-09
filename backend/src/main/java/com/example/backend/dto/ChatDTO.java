@@ -34,6 +34,13 @@ public class ChatDTO {
         this.date = entity.getDate();
     }
 
+    public ChatDTO(String sent, String received, Long landmarkId, String chatId) {
+        this.sent = sent;
+        this.received = received;
+        this.landmarkId = landmarkId;
+        this.chatId = chatId;
+    }
+
     public static ChatEntity toEntity(final ChatDTO dto) {
         return ChatEntity.builder()
                 .chatId(dto.getChatId())

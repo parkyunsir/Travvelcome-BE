@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.ChatDTO;
 import com.example.backend.model.ChatEntity;
 import com.example.backend.model.Landmark;
 import com.example.backend.repository.ChatRepository;
@@ -52,8 +53,6 @@ public class ChatService {
         entity.setDate(LocalDateTime.now());
         return chatRepository.save(entity);
     }
-
-    //
 
     // 이전 대화 내용 기억하기
     public String getCompletion(String prompt, Optional<String> title) throws IOException {
@@ -134,11 +133,39 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
-
     // 대화 - 대화 내역 검색하기
-    public List<ChatEntity> searchChatting(final String text) {
-        return chatRepository.findBySentContainingOrReceivedContaining(text, text);
+    public List<ChatEntity> searchChatting(Long landmarkId, String text) {
+        return chatRepository.findByLandmarkIdAndSentContainingOrReceivedContaining(landmarkId, text, text);
     }
+
+    // 대화 - 대화 내역 검색 & 검색된 부분 추출하기
+    public List<ChatDTO> searchChattingWord(Long landmarkId, String text) {
+        // landmarkId와 sent/received에서 text를 포함한 결과를 가져옴
+        List<ChatEntity> entities = chatRepository.findByLandmarkIdAndSentContainingOrReceivedContaining(landmarkId, text, text);
+
+        // 검색어가 포함된 부분만 추출한 결과로 DTO를 생성
+        return entities.stream()
+            .map(entity -> {
+                // sent와 received에서 검색어가 포함된 부분만 추출
+                String filteredSent = extractMatchingText(entity.getSent(), text);
+                String filteredReceived = extractMatchingText(entity.getReceived(), text);
+
+                // DTO에 넣어 반환
+                return new ChatDTO(filteredSent, filteredReceived, landmarkId, entity.getChatId());
+            })
+            .collect(Collectors.toList());
+    }
+
+        // 검색어 부분 추출
+        private String extractMatchingText(String message, String text) {
+            if (message.contains(text)) {
+                // 메시지에서 검색어가 포함된 부분을 추출
+                int start = message.indexOf(text);
+                int end = start + text.length();
+                return message.substring(start, end);  // 검색어 부분만 반환
+            }
+            return "";  // 검색어가 없으면 빈 문자열 반환
+        }
 
     // 목록 - 랜드마크 리스트
     public List<Map<String, Object>> showList() {
