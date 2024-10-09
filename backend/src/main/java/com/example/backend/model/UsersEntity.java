@@ -35,4 +35,10 @@ public class UsersEntity {
         this.id = id;
         this.nickname = nickname;
     }
+
+    public UsersEntity(Long id, String email, String nickname) {
+        this.id = id;
+        this.email = email;
+        this.nickname = nickname;
+    }
 }
