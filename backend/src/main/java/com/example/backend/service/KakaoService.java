@@ -123,6 +123,26 @@ public class KakaoService {
         return userId;
     }
 
+    // 계정 탈퇴
+    public Long unlink(String accessToken) {
+
+        Long userId = WebClient.create(KAUTH_USER_URL_HOST)
+                .post()  // 로그아웃은 POST 요청입니다.
+                .uri("/v1/user/unlink")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        clientResponse -> Mono.error(new RuntimeException("Invalid Parameter: 4xx error")))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        clientResponse -> Mono.error(new RuntimeException("Internal Server Error: 5xx error")))
+                .bodyToMono(Long.class)
+                .block();
+
+        log.info("UNLINK ID ---> {} ", userId);
+
+        return userId;
+    }
+
 
     public UsersEntity saveUser(UsersEntity user) {
         return userRepository.save(user);
