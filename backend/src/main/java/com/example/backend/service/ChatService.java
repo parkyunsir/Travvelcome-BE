@@ -158,13 +158,16 @@ public class ChatService {
 
         // 검색어 부분 추출
         private String extractMatchingText(String message, String text) {
-            if (message.contains(text)) {
-                // 메시지에서 검색어가 포함된 부분을 추출
-                int start = message.indexOf(text);
-                int end = start + text.length();
-                return message.substring(start, end);  // 검색어 부분만 반환
+            // 메시지를 띄어쓰기 단위로 분리
+            String[] words = message.split(" ");
+
+            // 각 단어를 검사하여 검색어가 포함된 단어를 찾음
+            for (String word : words) {
+                if (word.contains(text)) {
+                    return word;  // 검색어가 포함된 단어를 반환
+                }
             }
-            return "";  // 검색어가 없으면 빈 문자열 반환
+            return "";  // 검색어가 포함된 단어가 없으면 빈 문자열 반환
         }
 
     // 목록 - 랜드마크 리스트
