@@ -1,12 +1,9 @@
 package com.example.backend.controller;
 
 
-import com.example.backend.dto.ChatDTO;
 import com.example.backend.dto.InterestDTO;
-import com.example.backend.model.ChatEntity;
+import com.example.backend.dto.KakaoDto;
 import com.example.backend.model.Interest;
-import com.example.backend.model.Landmark;
-import com.example.backend.model.UsersEntity;
 import com.example.backend.model.enums.Category;
 import com.example.backend.model.enums.Tag;
 import com.example.backend.service.InterestService;
@@ -17,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,14 +28,22 @@ public class InterestController {
     private KakaoService kakaoService;
 
     // 로그인 시 최초 관심사 등록
-    @Operation(summary = "최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. landmarkId userId, category 입니다!")
+    @Operation(summary = "개발중...[최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. RequestPram userId에 토큰을 입력해주세요.")
     @PostMapping()
-    public ResponseEntity<?> addInterest(@RequestParam Long userId, @RequestParam List<Category> categories) {
-        List<Interest> interests = interestService.addInterests(userId, categories);
-        List<InterestDTO> dtos = interests.stream().map(InterestDTO::new).collect(Collectors.toList());
-        return ResponseEntity.ok().body(dtos);
+    public ResponseEntity<?> addInterest(@RequestBody List<Category> categories, @RequestParam String userId) {
+        KakaoDto dto = kakaoService.getUserInfo(userId);
+        Long id = dto.getId(); // 잘 불러옴..
+
+//        List<Category> categories = Collections.singletonList(interestDTO.getCategory());
+
+        Interest savedEntity = interestService.addInterests(id, categories);
+        InterestDTO savedDTO = new InterestDTO(savedEntity);
+        Category category = savedDTO.getCategory();
+
+        return ResponseEntity.ok().body(categories);
     }
 
+    @Operation(summary = "개발중... [태그별 관심사 출력 API", description = "자연 / 지식 / 문화 별로 관심사를 출력할 수 있는 API입니다.")
     // 태그별 관심사 (자연 / 지식 / 문화) 출력
     @GetMapping("/tag/{tag}")
     public ResponseEntity<?> getInterestsByTag(@PathVariable Tag tag) {
@@ -46,6 +52,7 @@ public class InterestController {
         return ResponseEntity.ok().body(dtos);
     }
 
+    @Operation(summary = "개발중... [카테고리별 관심사 출력 API", description = "산, 오름 ... 별로 관심사를 출력할 수 있는 API입니다.")
     // 카테고리별 관심사
     @GetMapping("/category/{category}")
     public ResponseEntity<?> getInterestsByCategory(@PathVariable Category category) {
@@ -54,19 +61,12 @@ public class InterestController {
         return ResponseEntity.ok().body(dtos);
     }
 
+    @Operation(summary = "개발중... [전체 관심사 출력 API", description = "전체 등록된 관심사를 출력할 수 있는 API입니다.")
     // 전체 관심사
     @GetMapping("/all")
     public ResponseEntity<?> getInterest(@PathVariable Category category) {
         List<Interest> interests = interestService.getAllInterest();
         List<InterestDTO> dtos = interests.stream().map(InterestDTO::new).collect(Collectors.toList());
         return ResponseEntity.ok().body(dtos);
-    }
-
-
-    // 랜드마크 - 전체 관심사
-    @GetMapping("/landmarks")
-    public ResponseEntity<?> getLandmarksByInterest() {
-        List<Landmark> landmarks = interestService.getAllInterestLandmark();
-        return ResponseEntity.ok().body(landmarks);
     }
 }
