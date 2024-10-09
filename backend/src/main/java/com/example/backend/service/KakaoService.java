@@ -21,11 +21,11 @@ import reactor.core.publisher.Mono;
 
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class KakaoService {
 
     private String clientId;
+    private String logoutRedirectUri;
     private final String KAUTH_TOKEN_URL_HOST ;
     private final String KAUTH_USER_URL_HOST;
 
@@ -33,8 +33,10 @@ public class KakaoService {
     private UserRepository userRepository;
 
     @Autowired
-    public KakaoService(@Value("${kakao.client.id}") String clientId) {
+    public KakaoService(@Value("${kakao.client.id}") String clientId,
+                        @Value("${kakao.logout.redirect.uri}") String logoutRedirectUri) {
         this.clientId = clientId;
+        this.logoutRedirectUri = logoutRedirectUri;
         KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
         KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
     }
@@ -102,6 +104,42 @@ public class KakaoService {
 
         log.info("LOGOUT ID ---> {} ", userId);
 //        log.info("Email ---> {} ", userInfo.getKakaoAccount().getEmail()); // 현재 이메일은 null 값이다.
+
+        // 카카오 계정 세션 만료 처리
+        WebClient.create(KAUTH_TOKEN_URL_HOST)
+                .get()
+                .uri(uriBuilder -> uriBuilder.path("/oauth/logout")
+                        .queryParam("client_id", clientId)
+                        .queryParam("logout_redirect_uri", logoutRedirectUri)
+                        .build())
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        clientResponse -> Mono.error(new RuntimeException("Invalid Parameter for Account Logout: 4xx error")))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        clientResponse -> Mono.error(new RuntimeException("Internal Server Error for Account Logout: 5xx error")))
+                .toBodilessEntity()
+                .block();
+
+        return userId;
+    }
+
+    // 계정 탈퇴
+    public Long unlink(String accessToken) {
+
+        Long userId = WebClient.create(KAUTH_USER_URL_HOST)
+                .post()  // 로그아웃은 POST 요청입니다.
+                .uri("/v1/user/unlink")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        clientResponse -> Mono.error(new RuntimeException("Invalid Parameter: 4xx error")))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        clientResponse -> Mono.error(new RuntimeException("Internal Server Error: 5xx error")))
+                .bodyToMono(Long.class)
+                .block();
+
+        log.info("UNLINK ID ---> {} ", userId);
+
         return userId;
     }
 
