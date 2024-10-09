@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,14 +18,12 @@ import lombok.NoArgsConstructor;
 public class InterestDTO {
     private Long id;
     private UsersEntity user;
-//    private Long userId;
     private Category category;
     private Tag tag;
 
     public InterestDTO(Interest entity) {
         this.id = entity.getId();
         this.user = entity.getUser();
-//        this.userId = entity.getUserId();
         this.category = entity.getCategory();
         this.tag = entity.getTag();
     }
@@ -31,7 +31,6 @@ public class InterestDTO {
     public Interest toEntity(final InterestDTO dto) {
         return Interest.builder()
                 .id(dto.getId())
-//                .userId(dto.getUserId())
                 .user(dto.getUser())
                 .category(dto.getCategory())
                 .tag(dto.getTag())

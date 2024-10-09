@@ -1,5 +1,7 @@
 package com.example.backend.service;
 
+import com.example.backend.apiPayload.code.status.ErrorStatus;
+import com.example.backend.apiPayload.exception.handler.TempHandler;
 import com.example.backend.model.Interest;
 import com.example.backend.model.Landmark;
 import com.example.backend.model.UsersEntity;
@@ -25,28 +27,29 @@ public class InterestService {
     private LandmarkRepository landmarkRepository;
 
     @Autowired
-    private UserRepository usersRepository;
+    private UserRepository userRepository;
 
-    public List<Interest> addInterests(Long userId, List<Category> categories) {
+    public Interest addInterests(Long userId, List<Category> categories) {
         // 해당 유저를 조회
-        UsersEntity user = usersRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+        UsersEntity user = userRepository.findById(userId)
+            .orElseThrow(() -> new TempHandler(ErrorStatus.USER_NOT_FOUND));
 
-        List<Interest> savedInterests = new ArrayList<>();
+        Interest interest = null;
 
-        // 각 카테고리를 순회하며 관심사를 생성
+        // 관심사 저장
         for (Category category : categories) {
-
-            // 새로운 관심사 생성 및 저장
-            Interest interest = Interest.builder()
+            interest = Interest.builder()
                     .user(user)
                     .category(category)
                     .build();
 
-            savedInterests.add(interestRepository.save(interest)); // 저장된 관심사 목록에 추가
+            user.getInterests().add(interest);
         }
 
-        return savedInterests; // 저장된 관심사 목록 반환
+        interestRepository.save(interest);
+        userRepository.save(user);
+
+        return interest; // 저장된 관심사 목록 반환
     }
 
     // 모든 관심사 불러오기
