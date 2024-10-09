@@ -30,10 +30,11 @@ public class InterestController {
     private KakaoService kakaoService;
 
     // 로그인 시 최초 관심사 등록
-    @Operation(summary = "최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. landmarkId userId, category 입니다!")
+    @Operation(summary = "최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. RequestParam : userId, category 입니다! userId에 토큰을 입력해주세요.")
     @PostMapping()
-    public ResponseEntity<?> addInterest(@RequestParam Long userId, @RequestParam List<Category> categories) {
-        List<Interest> interests = interestService.addInterests(userId, categories);
+    public ResponseEntity<?> addInterest(@RequestParam String userId, @RequestParam List<Category> categories) {
+        Long id = kakaoService.getUserInfo(userId).getId();
+        List<Interest> interests = interestService.addInterests(id, categories);
         List<InterestDTO> dtos = interests.stream().map(InterestDTO::new).collect(Collectors.toList());
         return ResponseEntity.ok().body(dtos);
     }
