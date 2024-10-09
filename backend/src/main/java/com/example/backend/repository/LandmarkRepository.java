@@ -20,8 +20,8 @@ public interface LandmarkRepository extends JpaRepository<Landmark, Long> {
   // title에 포함된 모든 Landmark 엔티티를 검색
   List<Landmark> findByTitleContaining(String title);
 
-  // 모든 id를 통해 Landmark Entity 반환
-  List<Landmark> findAllById(Long id);
+//  // 모든 id를 통해 Landmark Entity 반환
+//  List<Landmark> findAllById(Long id);
 
   // id를 통해 title 추출
   @Query("SELECT l.title FROM Landmark l WHERE l.id = :id")

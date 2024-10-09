@@ -6,6 +6,7 @@ import com.example.backend.model.ChatEntity;
 import com.example.backend.model.Landmark;
 import com.example.backend.repository.LandmarkRepository;
 import com.example.backend.service.ChatService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ public class ChatController {
     @Autowired
     private LandmarkRepository landmarkRepository;
 
+    @Operation(summary = "챗봇 대화 API", description = "챗봇과 대화할 수 있는 API입니다. landmarkId RequestParam 입니다!")
     // 대화 - 질문하기 , 대화하기
     @PostMapping // /chat?landmarkId={}
     public ResponseEntity<?> createResponse(@RequestParam("landmarkId") Long landmarkId, @RequestBody ChatDTO dto) {
@@ -52,7 +54,7 @@ public class ChatController {
         }
     }
 
-
+    @Operation(summary = "[/chatting/history] 챗봇 history API", description = "챗봇과 대화 내역을 보여주는 API입니다. landmarkId RequestParam 입니다!")
     // [/chatting/history]
     // 대화 - 대화 내역 보여주기
     @GetMapping // /chat?landmarkId={}
@@ -74,6 +76,7 @@ public class ChatController {
         return ResponseEntity.ok().body(response);
     }
 
+    @Operation(summary = "[/chatting/history] 챗봇 history 검색 API", description = "챗봇과 대화 내역을 검색할 수 있는 API입니다. landmarkId RequestParam, 검색어(text) RequestParam 입니다!")
     // [/chatting/history]
     // 대화 - 대화 검색하기
     @GetMapping("/search") // /chat/search?landmarkId={}&text={}
@@ -84,6 +87,7 @@ public class ChatController {
         return ResponseEntity.ok().body(dtos);
     }
 
+    @Operation(summary = "[/chatting] 챗봇 목록 API", description = "대화한 챗봇 목록을 보여주는 API입니다!")
     // [/chatting]
     // 목록 - (최신순) landmark 대화 list
     @GetMapping("/list") // /chat/list
@@ -93,6 +97,7 @@ public class ChatController {
         return convertEntityToDto(entities);
     }
 
+    @Operation(summary = "[/chatting] 챗봇 목록 검색 API", description = "대화한 챗봇 목록에서 관광지를 검색할 수 있는 API입니다! 랜드마크이름(title) RequestParam 입니다!")
     // [/chatting]
     // 목록 - landmark 검색
     @GetMapping("/list/search") // /chat/list/search?title={}
