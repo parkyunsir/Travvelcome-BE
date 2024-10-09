@@ -136,8 +136,8 @@ public class ChatService {
 
 
     // 대화 - 대화 내역 검색하기
-    public List<ChatEntity> searchChatting(final String text) {
-        return chatRepository.findBySentContainingOrReceivedContaining(text, text);
+    public List<ChatEntity> searchChatting(Long landmarkId, String text) {
+        return chatRepository.findByLandmarkIdAndSentContainingOrReceivedContaining(landmarkId, text, text);
     }
 
     // 목록 - 랜드마크 리스트

@@ -22,5 +22,10 @@ public interface ChatRepository extends JpaRepository<ChatEntity, String> {
 
 
     // 대화 내역 검색하기
-    List<ChatEntity> findBySentContainingOrReceivedContaining(String sent, String received);
+//    List<ChatEntity> findBySentContainingOrReceivedContaining(String sent, String received);
+
+    List<ChatEntity> findByLandmarkIdAndSentContainingOrReceivedContaining(Long landmarkId, String text, String text2);
+
+
+
 }
