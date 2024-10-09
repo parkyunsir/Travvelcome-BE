@@ -11,6 +11,7 @@ import com.example.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,38 +27,26 @@ public class InterestService {
     @Autowired
     private UserRepository usersRepository;
 
-    // interest 등록하기
-//    public Interest saveInterest(Category category) {
-//        boolean interestExists = interestRepository.findByCategory(category).isEmpty();
-//        if (!interestExists) {
-//            throw new IllegalArgumentException("해당 카테고리는 이미 관심사로 등록되어 있습니다.");
-//        }
-//
-//        Interest interest = Interest.builder()
-////          .user(user)
-//            .category(category)
-//            .build();
-//        return interestRepository.save(interest);
-//    }
-    public Interest addInterest(Long userId, Category category) {
+    public List<Interest> addInterests(Long userId, List<Category> categories) {
         // 해당 유저를 조회
         UsersEntity user = usersRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
 
-        // 해당 관심사가 이미 존재하는지 확인
-        boolean interestExists = interestRepository.findByUserIdAndCategory(userId, category).isEmpty();
-        if (!interestExists) {
-            throw new IllegalArgumentException("해당 카테고리는 이미 관심사로 등록되어 있습니다.");
+        List<Interest> savedInterests = new ArrayList<>();
+
+        // 각 카테고리를 순회하며 관심사를 생성
+        for (Category category : categories) {
+
+            // 새로운 관심사 생성 및 저장
+            Interest interest = Interest.builder()
+                    .user(user)
+                    .category(category)
+                    .build();
+
+            savedInterests.add(interestRepository.save(interest)); // 저장된 관심사 목록에 추가
         }
 
-        // 새로운 관심사 생성 및 저장
-        Interest interest = Interest.builder()
-//                .userId(userId)
-                .user(user)
-                .category(category)
-                .build();
-
-        return interestRepository.save(interest);
+        return savedInterests; // 저장된 관심사 목록 반환
     }
 
     // 모든 관심사 불러오기

@@ -11,6 +11,7 @@ import com.example.backend.model.enums.Category;
 import com.example.backend.model.enums.Tag;
 import com.example.backend.service.InterestService;
 import com.example.backend.service.KakaoService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,11 +29,13 @@ public class InterestController {
     @Autowired
     private KakaoService kakaoService;
 
-    // 로그인 시 최초
-    // 관심사 등록
+    // 로그인 시 최초 관심사 등록
+    @Operation(summary = "최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. landmarkId userId, category 입니다!")
     @PostMapping()
-    public Interest addInterest(@RequestParam Long userId, @RequestParam Category category) {
-        return interestService.addInterest(userId, category);
+    public ResponseEntity<?> addInterest(@RequestParam Long userId, @RequestParam List<Category> categories) {
+        List<Interest> interests = interestService.addInterests(userId, categories);
+        List<InterestDTO> dtos = interests.stream().map(InterestDTO::new).collect(Collectors.toList());
+        return ResponseEntity.ok().body(dtos);
     }
 
     // 태그별 관심사 (자연 / 지식 / 문화) 출력
