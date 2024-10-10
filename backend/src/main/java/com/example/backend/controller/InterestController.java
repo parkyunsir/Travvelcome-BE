@@ -73,4 +73,14 @@ public class InterestController {
 
         return ResponseEntity.ok().body(dtos);
     }
+
+    // 관심사 전체 삭제
+    @Operation(summary = "현재 관심사 전체 선택 해제 API", description = "현재 등록된 관심사를 전체 선택 해제 할 수 있는 API입니다. RequestPram userId에 토큰을 입력해주세요.")
+    @DeleteMapping()
+    public ResponseEntity<?> deleteInterests(@RequestParam String userId) {
+        KakaoDto userInfo = kakaoService.getUserInfo(userId);
+        Long id = userInfo.getId();
+        interestService.deleteAllInterestsByUserId(id);
+        return ResponseEntity.ok("All interests deleted for user " + id);
+    }
 }

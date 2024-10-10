@@ -73,4 +73,9 @@ public class InterestService {
         // 모든 enum 값을 List로 반환
         return Arrays.asList(Category.values());
     }
+
+    // 현재 등록된 관심사 선택 해지
+    public void deleteAllInterestsByUserId(Long userId) {
+        interestRepository.deleteInterestsByUserId(userId);
+    }
 }
