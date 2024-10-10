@@ -51,7 +51,7 @@ public class KakaoController {
     }
 
     // 로그아웃
-    @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다. 사용자 id값이 반환되면 정상적으로 로그아웃 된 것입니다!")
+    @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다. 사용자 id값이 반환되면 정상적으로 로그아웃 된 것입니다! RequestPram userId에 토큰을 입력해주세요.")
     @PostMapping("/logout")
     public ResponseEntity<?> kakaoLogout(@RequestParam String userId) {
 
@@ -69,16 +69,16 @@ public class KakaoController {
     }
 
     // 계정 탈퇴
-    @Operation(summary = "계정탈퇴 API", description = "계정 탈퇴(실제로는 카카오 계정과 앱과 연결을 끊는) API입니다. 사용자 id값이 반환되면 정상적으로 계정 탈퇴 처리된 것입니다!" +
+    @Operation(summary = "계정탈퇴 API", description = "계정 탈퇴(실제로는 카카오 계정과 앱과 연결을 끊는) API입니다. 사용자 id값이 반환되면 정상적으로 계정 탈퇴 처리된 것입니다! RequestPram userId에 토큰을 입력해주세요." +
             "https://kapi.kakao.com/v1/user/unlink(Post)처리가 일어납니다.")
     @PostMapping("/unlink")
-    public ResponseEntity<?> kakaoUnlink(String accessToken) {
+    public ResponseEntity<?> kakaoUnlink(@RequestParam String userId) {
 
-        if (accessToken != null && !accessToken.isEmpty()) {
+        if (userId != null && !userId.isEmpty()) {
             try {
-                Long userId = kakaoService.unlink(accessToken); // 계정과 연결 끊기 처리
+                Long id = kakaoService.unlink(userId); // 계정과 연결 끊기 처리
 
-                return ResponseEntity.ok().body(userId); // 성공 시 userId 반환
+                return ResponseEntity.ok().body(id); // 성공 시 userId 반환
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(e.getMessage()); // 예외 발생 시 에러 메시지 반환
             }
