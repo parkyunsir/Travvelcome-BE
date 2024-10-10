@@ -88,10 +88,10 @@ public class KakaoService {
     }
 
     // 로그아웃
-    public Long logout(String accessToken) {
+    public String logout(String accessToken) {
 
         Long userId = WebClient.create(KAUTH_USER_URL_HOST)
-                .post()  // 로그아웃은 POST 요청입니다.
+                .post()
                 .uri("/v1/user/logout")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
@@ -120,14 +120,14 @@ public class KakaoService {
                 .toBodilessEntity()
                 .block();
 
-        return userId;
+        return "로그아웃 되었습니다.";
     }
 
     // 계정 탈퇴
-    public Long unlink(String accessToken) {
+    public String unlink(String accessToken) {
 
         Long userId = WebClient.create(KAUTH_USER_URL_HOST)
-                .post()  // 로그아웃은 POST 요청입니다.
+                .post()
                 .uri("/v1/user/unlink")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
@@ -140,7 +140,7 @@ public class KakaoService {
 
         log.info("UNLINK ID ---> {} ", userId);
 
-        return userId;
+        return "계정 탙퇴 되었습니다.";
     }
 
 

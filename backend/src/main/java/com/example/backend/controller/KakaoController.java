@@ -32,17 +32,24 @@ public class KakaoController {
         try {
             String accessToken = kakaoService.getAccessTokenFromKakao(code);
 
-            KakaoDto userInfo = kakaoService.getUserInfo(accessToken);
+            return ResponseEntity.ok().body(accessToken);
+        } catch (Exception e) {
+            // 6. 예외 발생 시 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 에러, 관리자에게 문의 바랍니다.");
+        }
+    }
+
+    @Operation(summary = "로그인 API", description = "로그인 API입니다. code값과 token값이 자동 생성됩니다!")
+    @GetMapping("/logins") // 사용자 정보
+    public ResponseEntity<?> login(@RequestParam String userId) {
+        try {
+            KakaoDto userInfo = kakaoService.getUserInfo(userId);
             UsersEntity getUserEntity = KakaoDto.toEntity(userInfo);
 
             UsersEntity savedEntity = kakaoService.saveUser(getUserEntity);
 
-            // 토큰과 사용자 정보를 Map으로 묶어서 반환
-            Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("accessToken", accessToken); // 토큰 추가
-            responseBody.put("userInfo", savedEntity); // 사용자 정보 추가
-
-            return ResponseEntity.ok().body(responseBody);
+            return ResponseEntity.ok().body(savedEntity);
         } catch (Exception e) {
             // 6. 예외 발생 시 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -57,9 +64,9 @@ public class KakaoController {
 
         if (userId != null && !userId.isEmpty()) {
             try {
-                Long id = kakaoService.logout(userId); // 로그아웃 처리
+                String message = kakaoService.logout(userId); // 로그아웃 처리
 
-                return ResponseEntity.ok().body(id); // 성공 시 Id 반환
+                return ResponseEntity.ok().body(message); // 성공 시 Id 반환
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(e.getMessage()); // 예외 발생 시 에러 메시지 반환
             }
@@ -69,16 +76,15 @@ public class KakaoController {
     }
 
     // 계정 탈퇴
-    @Operation(summary = "계정탈퇴 API", description = "계정 탈퇴(실제로는 카카오 계정과 앱과 연결을 끊는) API입니다. 사용자 id값이 반환되면 정상적으로 계정 탈퇴 처리된 것입니다! RequestPram userId에 토큰을 입력해주세요." +
-            "https://kapi.kakao.com/v1/user/unlink(Post)처리가 일어납니다.")
+    @Operation(summary = "계정탈퇴 API", description = "계정 탈퇴(실제로는 카카오 계정과 앱과 연결을 끊는) API입니다. 사용자 id값이 반환되면 정상적으로 계정 탈퇴 처리된 것입니다! RequestPram userId에 토큰을 입력해주세요.")
     @PostMapping("/unlink")
     public ResponseEntity<?> kakaoUnlink(@RequestParam String userId) {
 
         if (userId != null && !userId.isEmpty()) {
             try {
-                Long id = kakaoService.unlink(userId); // 계정과 연결 끊기 처리
+                String message = kakaoService.unlink(userId); // 계정과 연결 끊기 처리
 
-                return ResponseEntity.ok().body(id); // 성공 시 userId 반환
+                return ResponseEntity.ok().body(message); // 성공 시 userId 반환
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(e.getMessage()); // 예외 발생 시 에러 메시지 반환
             }
