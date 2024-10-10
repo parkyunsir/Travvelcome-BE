@@ -31,7 +31,7 @@ public class InterestController {
 
     // 로그인 시 최초 관심사 등록
     @Operation(summary = "최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. RequestPram userId에 토큰을 입력해주세요." +
-            "Request body에는 다음과 같이 입력해주세요. [\n" +
+            " Request body에는 다음과 같이 입력해주세요. [\n" +
             "  { \"category\": \"MOUNTAIN\" },\n" +
             "  { \"category\": \"BEACH_ISLAND\" }\n" +
             "]")
@@ -60,13 +60,21 @@ public class InterestController {
     }
 
     // 현재 관심사
-    @Operation(summary = "[개발중...] 현재 관심사 출력 API", description = "현재 등록된 관심사를 출력할 수 있는 API입니다.")
-    @GetMapping("/all")
+    @Operation(summary = "현재 관심사 출력 API", description = "현재 등록된 관심사를 출력할 수 있는 API입니다." +
+            " Request body에는 다음과 같이 입력해주세요. [\n" +
+            "  { \"category\": \"MOUNTAIN\" },\n" +
+            "  { \"category\": \"BEACH_ISLAND\" }\n" +
+            "]")
+    @GetMapping()
     public ResponseEntity<?> getInterest(@RequestParam String userId) {
         KakaoDto userInfo = kakaoService.getUserInfo(userId);
         Long id = userInfo.getId();
-        List<Interest> interests = null;
-        List<InterestDTO> dtos = interests.stream().map(InterestDTO::new).collect(Collectors.toList());
+
+        List<Interest> interests = interestService.getAllInterest(id);
+
+        List<InterestDTO> dtos = interests.stream().map(
+                InterestDTO::new).collect(Collectors.toList());
+
         return ResponseEntity.ok().body(dtos);
     }
 

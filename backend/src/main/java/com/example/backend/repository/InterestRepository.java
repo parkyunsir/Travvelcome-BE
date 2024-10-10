@@ -15,11 +15,5 @@ public interface InterestRepository  extends JpaRepository<Interest, Long> {
     // 카테고리별 관심사 (산 바다 산책...)
     List<Interest> findByCategory(Category category);
 
-    // 모든 관심사
-    List<Interest> findAll();
-
-    // List<Interest> findByUserId(Long userId);
-    List<Interest> findByUserIdAndCategory(Long userId, Category category);
-
     void deleteByUserId(long userId);
 }

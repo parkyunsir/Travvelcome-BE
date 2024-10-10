@@ -31,6 +31,8 @@ public class InterestService {
     @Autowired
     private UserRepository userRepository;
 
+    
+    // 관심사 저장하기
     public List<Interest> addInterests(Long userId, List<Category> categories) {
         // 해당 유저를 조회
         UsersEntity user = userRepository.findById(userId)
@@ -55,9 +57,9 @@ public class InterestService {
         return interests; // 저장된 관심사 목록 반환
     }
 
-    // 모든 관심사 불러오기
-    public List<Interest> getAllInterest() {
-        return interestRepository.findAll();
+    // 현재 등록된 관심사 불러오기
+    public List<Interest> getAllInterest(Long userId) {
+        return userRepository.findInterestsByUserId(userId);
     }
 
     // tag 별로 불러오기
