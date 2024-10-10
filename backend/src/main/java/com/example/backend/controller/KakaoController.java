@@ -58,7 +58,7 @@ public class KakaoController {
     }
 
     // 로그아웃
-    @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다. 사용자 id값이 반환되면 정상적으로 로그아웃 된 것입니다! RequestPram userId에 토큰을 입력해주세요.")
+    @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다. RequestPram userId에 토큰을 입력해주세요.")
     @PostMapping("/logout")
     public ResponseEntity<?> kakaoLogout(@RequestParam String userId) {
 
@@ -76,7 +76,7 @@ public class KakaoController {
     }
 
     // 계정 탈퇴
-    @Operation(summary = "계정탈퇴 API", description = "계정 탈퇴(실제로는 카카오 계정과 앱과 연결을 끊는) API입니다. 사용자 id값이 반환되면 정상적으로 계정 탈퇴 처리된 것입니다! RequestPram userId에 토큰을 입력해주세요.")
+    @Operation(summary = "계정탈퇴 API", description = "계정 탈퇴(실제로는 카카오 계정과 앱과 연결을 끊는) API입니다. RequestPram userId에 토큰을 입력해주세요.")
     @PostMapping("/unlink")
     public ResponseEntity<?> kakaoUnlink(@RequestParam String userId) {
 
