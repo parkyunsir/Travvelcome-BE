@@ -32,24 +32,17 @@ public class KakaoController {
         try {
             String accessToken = kakaoService.getAccessTokenFromKakao(code);
 
-            return ResponseEntity.ok().body(accessToken);
-        } catch (Exception e) {
-            // 6. 예외 발생 시 처리
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("서버 에러, 관리자에게 문의 바랍니다.");
-        }
-    }
-
-    @Operation(summary = "로그인 API", description = "로그인 API입니다. code값과 token값이 자동 생성됩니다!")
-    @GetMapping("/logins") // 사용자 정보
-    public ResponseEntity<?> login(@RequestParam String userId) {
-        try {
-            KakaoDto userInfo = kakaoService.getUserInfo(userId);
+            KakaoDto userInfo = kakaoService.getUserInfo(accessToken);
             UsersEntity getUserEntity = KakaoDto.toEntity(userInfo);
 
             UsersEntity savedEntity = kakaoService.saveUser(getUserEntity);
 
-            return ResponseEntity.ok().body(savedEntity);
+            // 토큰과 사용자 정보를 Map으로 묶어서 반환
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("accessToken", accessToken); // 토큰 추가
+            responseBody.put("userInfo", savedEntity); // 사용자 정보 추가
+
+            return ResponseEntity.ok().body(responseBody);
         } catch (Exception e) {
             // 6. 예외 발생 시 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -58,7 +51,8 @@ public class KakaoController {
     }
 
     // 로그아웃
-    @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다. RequestPram userId에 토큰을 입력해주세요.")
+    @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다. RequestPram userId에 토큰을 입력해주세요." +
+            " 현재 swagger에서 동작 시 200 ok & html 문서가 뜹니다.")
     @PostMapping("/logout")
     public ResponseEntity<?> kakaoLogout(@RequestParam String userId) {
 
@@ -76,7 +70,8 @@ public class KakaoController {
     }
 
     // 계정 탈퇴
-    @Operation(summary = "계정탈퇴 API", description = "계정 탈퇴(실제로는 카카오 계정과 앱과 연결을 끊는) API입니다. RequestPram userId에 토큰을 입력해주세요.")
+    @Operation(summary = "계정탈퇴 API", description = "계정 탈퇴(실제로는 카카오 계정과 앱과 연결을 끊는) API입니다. RequestPram userId에 토큰을 입력해주세요." +
+            " 현재 swagger에서 동작 시 Invalid Parameter: 4xx error가 뜨지만 정상 처리 된 것입니다.")
     @PostMapping("/unlink")
     public ResponseEntity<?> kakaoUnlink(@RequestParam String userId) {
 
