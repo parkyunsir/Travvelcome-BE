@@ -41,14 +41,19 @@ public class InterestService {
         List<Interest> interests = new ArrayList<>();
 
         for (Category category : categories) {
-            Interest interest = Interest.builder()
-                .user(user)
-                .category(category)
-                .build();
+            // 이미 관심사로 등록 되었는지 check
+            boolean exists = user.getInterests().stream()
+                    .anyMatch(existingInterest -> existingInterest.getCategory() == category);
 
-            user.getInterests().add(interest);
+            if (!exists) {
+                Interest interest = Interest.builder()
+                        .user(user)
+                        .category(category)
+                        .build();
 
-            interests.add(interest);
+                user.getInterests().add(interest);
+                interests.add(interest);
+            }
         }
 
         interestRepository.saveAll(interests);
