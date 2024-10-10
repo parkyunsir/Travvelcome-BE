@@ -5,6 +5,7 @@ import com.example.backend.apiPayload.exception.handler.TempHandler;
 import com.example.backend.model.Interest;
 import com.example.backend.model.UsersEntity;
 import com.example.backend.model.enums.Category;
+import com.example.backend.repository.InterestRepository;
 import com.example.backend.repository.StampRepository;
 import com.example.backend.repository.UserRepository;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MyPageServiceImpl implements MyPageService{
 
   private final UserRepository userRepository;
+  private final InterestRepository interestRepository;
   private final StampRepository stampRepository;
 
 
@@ -30,8 +32,8 @@ public class MyPageServiceImpl implements MyPageService{
   @Transactional
   public void updateUserInterest(List<Category> categories, long userId) {
     UsersEntity user = userRepository.findById(userId).orElseThrow(() -> new TempHandler(ErrorStatus.USER_NOT_FOUND));
-    // 사용자의 기존 카테고리 삭제
-    user.getInterests().clear();
+    // 기존 카테고리 삭제
+    interestRepository.deleteByUserId(userId);
 
     // 새로운 카테고리 추가
     for (Category category : categories) {

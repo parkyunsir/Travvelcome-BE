@@ -20,4 +20,6 @@ public interface InterestRepository  extends JpaRepository<Interest, Long> {
 
     // List<Interest> findByUserId(Long userId);
     List<Interest> findByUserIdAndCategory(Long userId, Category category);
+
+    void deleteByUserId(long userId);
 }
