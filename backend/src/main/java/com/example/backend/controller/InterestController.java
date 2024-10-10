@@ -74,21 +74,13 @@ public class InterestController {
         return ResponseEntity.ok().body(dtos);
     }
 
-    @Operation(summary = "[개발중...] 태그별 관심사 출력 API", description = "자연 / 지식 / 문화 별로 관심사를 출력할 수 있는 API입니다.")
-    // 태그별 관심사 (자연 / 지식 / 문화) 출력
-    @GetMapping("/tag/{tag}")
-    public ResponseEntity<?> getInterestsByTag(@PathVariable Tag tag) {
-        List<Interest> interests = interestService.getTagInterest(tag);
-        List<InterestDTO> dtos = interests.stream().map(InterestDTO::new).collect(Collectors.toList());
-        return ResponseEntity.ok().body(dtos);
-    }
-
-    @Operation(summary = "[개발중...] 카테고리별 관심사 출력 API", description = "산, 오름 ... 별로 관심사를 출력할 수 있는 API입니다.")
-    // 카테고리별 관심사
-    @GetMapping("/category/{category}")
-    public ResponseEntity<?> getInterestsByCategory(@PathVariable Category category) {
-        List<Interest> interests = interestService.getCategoryInterest(category);
-        List<InterestDTO> dtos = interests.stream().map(InterestDTO::new).collect(Collectors.toList());
-        return ResponseEntity.ok().body(dtos);
+    // 관심사 전체 삭제
+    @Operation(summary = "현재 관심사 전체 선택 해제 API", description = "현재 등록된 관심사를 전체 선택 해제 할 수 있는 API입니다. RequestPram userId에 토큰을 입력해주세요.")
+    @DeleteMapping()
+    public ResponseEntity<?> deleteInterests(@RequestParam String userId) {
+        KakaoDto userInfo = kakaoService.getUserInfo(userId);
+        Long id = userInfo.getId();
+        interestService.deleteAllInterestsByUserId(id);
+        return ResponseEntity.ok("All interests deleted for user " + id);
     }
 }

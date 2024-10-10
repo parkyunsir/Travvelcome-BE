@@ -74,42 +74,8 @@ public class InterestService {
         return Arrays.asList(Category.values());
     }
 
-
-    // tag 별로 불러오기
-    public List<Interest> getTagInterest(Tag tag){
-        return interestRepository.findByTag(tag);
+    // 현재 등록된 관심사 선택 해지
+    public void deleteAllInterestsByUserId(Long userId) {
+        interestRepository.deleteInterestsByUserId(userId);
     }
-
-    // category 별로 불러오기
-    public List<Interest> getCategoryInterest(Category category) {
-        return interestRepository.findByCategory(category);
-    }
-
-    // 랜드마크 - 모두 불러오기
-    public List<Landmark> getAllInterestLandmark() {
-
-        // 모든 관심사
-        List<Interest> interests =  interestRepository.findAll();
-
-        // 관심사로 등록한 category 출력
-        List<Category> categories = interests.stream()
-                .map(Interest::getCategory)
-                .collect(Collectors.toList());
-
-        return landmarkRepository.findAll().stream()
-                .filter(landmark -> landmark.getCategories().stream()
-                        .anyMatch(categories::contains))
-                .collect(Collectors.toList());
-    }
-
-    // 랜드마크 - tag 별로 불러오기
-    public List<Interest> getTagInterestLandmark(Tag tag){
-        return interestRepository.findByTag(tag);
-    }
-
-    // 랜드마크 - category 별로 불러오기
-    public List<Interest> getCategoryInterestLandmark(Category category) {
-        return interestRepository.findByCategory(category);
-    }
-
 }
