@@ -51,16 +51,15 @@ public class KakaoController {
     }
 
     // 로그아웃
-    @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다. 사용자 id값이 반환되면 정상적으로 로그아웃 된 것입니다!" +
-            "https://kapi.kakao.com/v1/user/logout(Post)과 https://kauth.kakao.com/oauth/logout(Get)처리가 일어납니다")
+    @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다. 사용자 id값이 반환되면 정상적으로 로그아웃 된 것입니다!")
     @PostMapping("/logout")
-    public ResponseEntity<?> kakaoLogout(String accessToken) {
+    public ResponseEntity<?> kakaoLogout(@RequestParam String userId) {
 
-        if (accessToken != null && !accessToken.isEmpty()) {
+        if (userId != null && !userId.isEmpty()) {
             try {
-                Long userId = kakaoService.logout(accessToken); // 로그아웃 처리
+                Long id = kakaoService.logout(userId); // 로그아웃 처리
 
-                return ResponseEntity.ok().body(userId); // 성공 시 userId 반환
+                return ResponseEntity.ok().body(id); // 성공 시 Id 반환
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(e.getMessage()); // 예외 발생 시 에러 메시지 반환
             }
