@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,6 +67,13 @@ public class InterestService {
     public List<Interest> getAllInterest(Long userId) {
         return userRepository.findInterestsByUserId(userId);
     }
+    
+    // 모든 category 불러오기
+    public List<Category> getAllCategories() {
+        // 모든 enum 값을 List로 반환
+        return Arrays.asList(Category.values());
+    }
+
 
     // tag 별로 불러오기
     public List<Interest> getTagInterest(Tag tag){
