@@ -28,8 +28,6 @@ public class Interest {
   @Column(name = "category")
   private Category category;
 
-  private List<Category> categories;
-
   @Enumerated(EnumType.STRING)
   @Column(name = "tag")
   private Tag tag;

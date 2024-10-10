@@ -22,6 +22,10 @@ public class ChatController {
     @Autowired
     private ChatService chatService;
 
+
+    // userId 추가하기
+    // 관심사로 질문할 수 있는 거 추가하기 (과학에 대해 알려줘!)
+
     @Autowired
     private LandmarkRepository landmarkRepository;
 

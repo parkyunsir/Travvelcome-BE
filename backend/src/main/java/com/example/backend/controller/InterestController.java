@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,19 +30,27 @@ public class InterestController {
     private KakaoService kakaoService;
 
     // 로그인 시 최초 관심사 등록
-    @Operation(summary = "[개발중...] 최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. RequestPram userId에 토큰을 입력해주세요.")
+    @Operation(summary = "최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. RequestPram userId에 토큰을 입력해주세요.")
     @PostMapping()
-    public ResponseEntity<?> addInterest(@RequestBody InterestDTO interestDTO, @RequestParam String userId) {
+    public ResponseEntity<?> addInterest(@RequestBody List<InterestDTO> interests, @RequestParam String userId) {
         KakaoDto dto = kakaoService.getUserInfo(userId);
         Long id = dto.getId();
 
-        Interest savedEntity = interestService.addInterests(id, interestDTO.getCategories());
-        InterestDTO savedDTO = new InterestDTO(savedEntity);
+        List<Category> categories = interests.stream()
+                .map(InterestDTO::getCategory)
+                .collect(Collectors.toList());
 
-        // userId와 savedDTO 묶기
-        Map<String, Object> response = new HashMap<>();
-        response.put("access token", userId); // 토큰
-        response.put("savedDTO", savedDTO);
+        List<Interest> savedEntity = interestService.addInterests(id, categories);
+
+        // List<Interest>에서 category만 추출하여 DTO로 변환
+        List<InterestDTO> savedDTOs = savedEntity.stream()
+            .map(interest -> new InterestDTO(
+                interest.getCategory())) // category만 뽑아서 DTO로 만듦
+            .collect(Collectors.toList());
+
+        Map<String, Object> response = new LinkedHashMap<>(); // 순서가 userId - interest 순서
+        response.put("userId", id);
+        response.put("interest", savedDTOs);
 
         return ResponseEntity.ok().body(response);
     }
