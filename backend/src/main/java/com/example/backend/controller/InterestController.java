@@ -60,11 +60,7 @@ public class InterestController {
     }
 
     // 현재 관심사
-    @Operation(summary = "현재 관심사 출력 API", description = "현재 등록된 관심사를 출력할 수 있는 API입니다." +
-            " Request body에는 다음과 같이 입력해주세요. [\n" +
-            "  { \"category\": \"MOUNTAIN\" },\n" +
-            "  { \"category\": \"BEACH_ISLAND\" }\n" +
-            "]")
+    @Operation(summary = "현재 관심사 출력 API", description = "현재 등록된 관심사를 출력할 수 있는 API입니다.")
     @GetMapping()
     public ResponseEntity<?> getInterest(@RequestParam String userId) {
         KakaoDto userInfo = kakaoService.getUserInfo(userId);
