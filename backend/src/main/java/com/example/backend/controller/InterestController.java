@@ -73,22 +73,4 @@ public class InterestController {
 
         return ResponseEntity.ok().body(dtos);
     }
-
-    @Operation(summary = "[개발중...] 태그별 관심사 출력 API", description = "자연 / 지식 / 문화 별로 관심사를 출력할 수 있는 API입니다.")
-    // 태그별 관심사 (자연 / 지식 / 문화) 출력
-    @GetMapping("/tag/{tag}")
-    public ResponseEntity<?> getInterestsByTag(@PathVariable Tag tag) {
-        List<Interest> interests = interestService.getTagInterest(tag);
-        List<InterestDTO> dtos = interests.stream().map(InterestDTO::new).collect(Collectors.toList());
-        return ResponseEntity.ok().body(dtos);
-    }
-
-    @Operation(summary = "[개발중...] 카테고리별 관심사 출력 API", description = "산, 오름 ... 별로 관심사를 출력할 수 있는 API입니다.")
-    // 카테고리별 관심사
-    @GetMapping("/category/{category}")
-    public ResponseEntity<?> getInterestsByCategory(@PathVariable Category category) {
-        List<Interest> interests = interestService.getCategoryInterest(category);
-        List<InterestDTO> dtos = interests.stream().map(InterestDTO::new).collect(Collectors.toList());
-        return ResponseEntity.ok().body(dtos);
-    }
 }
