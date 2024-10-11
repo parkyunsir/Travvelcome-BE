@@ -67,12 +67,6 @@ public class InterestService {
     public List<Interest> getAllInterest(Long userId) {
         return userRepository.findInterestsByUserId(userId);
     }
-    
-    // 모든 category 불러오기
-    public List<Category> getAllCategories() {
-        // 모든 enum 값을 List로 반환
-        return Arrays.asList(Category.values());
-    }
 
     // 현재 등록된 관심사 선택 해지
     public void deleteAllInterestsByUserId(Long userId) {
