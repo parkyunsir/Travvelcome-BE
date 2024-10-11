@@ -27,8 +27,4 @@ public class Interest {
   @Enumerated(EnumType.STRING)
   @Column(name = "category")
   private Category category;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "tag")
-  private Tag tag;
 }

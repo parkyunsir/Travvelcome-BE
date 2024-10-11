@@ -37,14 +37,14 @@ public class CategoryController {
         return categoryService.getAllCategories();
     }
 
-    @Operation(summary = "tag - category 출력 API", description = "tag를 검색했을 때 해당하는 모든 category를 출력할 수 있는 API입니다. PathVariable NATURE/KNOWLEDGE/CULTURE 중 하나 입력하면 됩니다! ")
+    @Operation(summary = "tag - category 출력 API", description = "tag를 검색했을 때 해당하는 모든 category를 출력할 수 있는 API입니다! ")
     @GetMapping("/tag/{tag}")
     public ResponseEntity<List<Category>> getCategoriesByTag(@PathVariable("tag") Tag tag) {
         List<Category> categories = categoryService.getCategoriesByTag(tag);
         return ResponseEntity.ok(categories);
     }
 
-    @Operation(summary = "category - tag 출력 API", description = "category를 검색했을 때 해당하는 tag를 출력할 수 있는 API입니다. PathVariable MOUNTAIN / BEACH_ISLAND / .. 등 값 입력하면 됩니다! ")
+    @Operation(summary = "category - tag 출력 API", description = "category를 검색했을 때 해당하는 tag를 출력할 수 있는 API입니다! ")
     @GetMapping("/category/{category}")
     public ResponseEntity<List<Tag>> getTagsByCategory(@PathVariable("category") Category category) {
         List<Tag> tags = categoryService.getTagsByCategory(category);
