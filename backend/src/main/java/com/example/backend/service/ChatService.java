@@ -40,10 +40,8 @@ public class ChatService {
 
 
     // 챗GPT 답변 생성
-    public ChatEntity createResponse(ChatEntity entity) throws IOException {
+    public ChatEntity createResponse(ChatEntity entity, Long userId) throws IOException {
         validate(entity);
-
-        Landmark landmark;
 
         Long lid = entity.getLandmarkId(); // entity의 id
         Optional<String> title = landmarkRepository.findTitleById(lid); // id로 이름 출력.
@@ -51,6 +49,7 @@ public class ChatService {
         String response = getCompletion(entity.getSent(), title);
         entity.setReceived(response);
         entity.setDate(LocalDateTime.now());
+        entity.setUserId(userId);
         return chatRepository.save(entity);
     }
 
@@ -125,23 +124,23 @@ public class ChatService {
     }
 
     // 대화 - 1:1 대화 내역
-    public List<ChatEntity> showChat(Long landmarkId) {
+    public List<ChatEntity> showChat(Long landmarkId, Long userId) {
         // 채팅 데이터를 과거순으로 정렬
-        return chatRepository.findByLandmarkId(landmarkId)
+        return chatRepository.findByLandmarkIdAndUserId(landmarkId, userId)
                 .stream()
                 .sorted(Comparator.comparing(ChatEntity::getDate))
                 .collect(Collectors.toList());
     }
 
     // 대화 - 대화 내역 검색하기
-    public List<ChatEntity> searchChatting(Long landmarkId, String text) {
-        return chatRepository.findByLandmarkIdAndSentContainingOrReceivedContaining(landmarkId, text, text);
+    public List<ChatEntity> searchChatting(Long landmarkId, String text, Long userId) {
+        return chatRepository.findByLandmarkIdAndUserIdAndSentContainingOrReceivedContaining(landmarkId, userId, text, text);
     }
 
     // 대화 - 대화 내역 검색 & 검색된 부분 추출하기
-    public List<ChatDTO> searchChattingWord(Long landmarkId, String text) {
+    public List<ChatDTO> searchChattingWord(Long landmarkId, String text, Long userId) {
         // landmarkId와 sent/received에서 text를 포함한 결과를 가져옴
-        List<ChatEntity> entities = chatRepository.findByLandmarkIdAndSentContainingOrReceivedContaining(landmarkId, text, text);
+        List<ChatEntity> entities = chatRepository.findByLandmarkIdAndUserIdAndSentContainingOrReceivedContaining(landmarkId, userId , text, text);
 
         // 검색어가 포함된 부분만 추출한 결과로 DTO를 생성
         return entities.stream()
@@ -151,7 +150,7 @@ public class ChatService {
                 String filteredReceived = extractMatchingText(entity.getReceived(), text);
 
                 // DTO에 넣어 반환
-                return new ChatDTO(filteredSent, filteredReceived, landmarkId, entity.getChatId());
+                return new ChatDTO(filteredSent, filteredReceived, landmarkId, entity.getChatId(), userId);
             })
             .collect(Collectors.toList());
     }

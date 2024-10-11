@@ -18,6 +18,7 @@ public class ChatDTO {
     private String received;
     private Long landmarkId;
     private LocalDateTime date;
+    private Long userId;
 
     public ChatDTO(ChatEntity entity) {
         this.chatId = entity.getChatId();
@@ -26,15 +27,16 @@ public class ChatDTO {
         this.received = entity.getReceived();
 
         this.landmarkId = entity.getLandmarkId();
-
         this.date = entity.getDate();
+        this.userId = entity.getUserId();
     }
 
-    public ChatDTO(String sent, String received, Long landmarkId, String chatId) {
+    public ChatDTO(String sent, String received, Long landmarkId, String chatId, Long userId) {
         this.sent = sent;
         this.received = received;
         this.landmarkId = landmarkId;
         this.chatId = chatId;
+        this.userId = userId;
     }
 
     public static ChatEntity toEntity(final ChatDTO dto) {
@@ -44,6 +46,7 @@ public class ChatDTO {
                 .received(dto.getReceived())
                 .landmarkId(dto.getLandmarkId())
                 .date(dto.getDate())
+                .userId(dto.getUserId())
                 .build();
     }
 }
