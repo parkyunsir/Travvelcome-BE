@@ -51,7 +51,9 @@ public class ChatService {
         Long lid = entity.getLandmarkId(); // entity의 id
         Optional<String> title = landmarkRepository.findTitleById(lid); // id로 이름 출력.
 
-        String response = getCompletion(entity.getSent(), title);
+        String ltitle = title.get();
+
+        String response = getCompletion(entity.getSent(), ltitle, lid, userId);
         entity.setReceived(response);
         entity.setDate(LocalDateTime.now());
         entity.setUserId(userId);
@@ -59,8 +61,8 @@ public class ChatService {
     }
 
     // 대화 시작 및 이전 대화 내용 기억하기
-    public String getCompletion(String prompt, Optional<String> title) throws IOException {
-        List<ChatEntity> entities = chatRepository.findAll();
+    public String getCompletion(String prompt, String title, Long landmarkId, Long userId) throws IOException {
+        List<ChatEntity> entities = chatRepository.findByLandmarkIdAndUserId(landmarkId,userId);
         StringBuilder contentBuilder = new StringBuilder();
         contentBuilder.append(String.format("너는 %s이야. ", title));
         contentBuilder.append("너는 알려주는 것을 좋아해. " +
@@ -89,8 +91,6 @@ public class ChatService {
         system.put("role", "system");
         system.put("content", contentBuilder.toString() + "라고 했어.");
         user.put("role", "user");
-
-
 
         user.put("content", prompt);
         JSONArray messagesArray = new JSONArray();
@@ -135,14 +135,103 @@ public class ChatService {
         Long lid = entity.getLandmarkId(); // entity의 id
         Optional<String> title = landmarkRepository.findTitleById(lid); // id로 이름 출력.
 
-        String response = getCompletion(entity.getSent(), title);
-        entity.setReceived(response);
+        String ltitle = title.get();
+
+        List<String> result = getTopicCompletion(topic, ltitle, lid, userId);
+
+        log.info("ltitle " + ltitle);
+        log.info("result(0) " + result.get(0));
+        log.info("result(1) " + result.get(1));
+
+        entity.setSent(result.get(0)); // prompt
+        entity.setReceived(result.get(1)); // content
         entity.setDate(LocalDateTime.now());
         entity.setUserId(userId);
         return chatRepository.save(entity);
     }
 
     // 주제 선택 - 대화하기
+    public List<String> getTopicCompletion(String topic, String title, Long landmarkId,Long userId) throws IOException {
+        List<ChatEntity> entities = chatRepository.findByLandmarkIdAndUserId(landmarkId,userId);
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append(String.format("너는 %s이야. ", title));
+        contentBuilder.append("너는 알려주는 것을 좋아해. " +
+                "너는 긍정적이고, 낙천적이고, 박학다식해. 너는 꼼꼼하고, 친절해." +
+                "user는 너에게 '제주도에 있는 다양한 장소 중 자연 혹은 문화 혹은 역사에 관련된 궁금한 장소'를 물어볼 거야.");
+
+        // 이전 질문, 답변 받아와서 기억하기
+        for (ChatEntity entity : entities) {
+            String request = entity.getSent();
+            String response = entity.getReceived().replace("\n", "");
+
+            contentBuilder.append("사용자가 '")
+                .append(request)
+                .append("', 너가 '")
+                .append(response)
+                .append("', ");
+        }
+        // 마지막 쉼표와 공백 제거
+        int length = contentBuilder.length();
+        if (length > 2) {
+            contentBuilder.setLength(length - 2); // 마지막 두 문자 제거 (', ')
+        }
+
+        JSONObject system = new JSONObject();
+        JSONObject user = new JSONObject();
+        system.put("role", "system");
+        system.put("content", contentBuilder.toString() + "라고 했어.");
+        user.put("role", "user");
+
+        StringBuilder prompt = new StringBuilder();
+        prompt.append(title);
+        prompt.append("의 ");
+        prompt.append(topic);
+        prompt.append("사실에 대해 알려줘.");
+
+        // 추가된 내용을 `content`에 넣기
+        user.put("content", prompt.toString());
+
+        user.put("content", topic);
+        JSONArray messagesArray = new JSONArray();
+        messagesArray.add(system);
+        messagesArray.add(user);
+
+        JSONObject json = new JSONObject();
+        json.put("model", modelId);
+        json.put("messages", messagesArray);
+
+        RequestBody body = RequestBody.create(
+            json.toString(),
+            MediaType.parse("application/json")
+        );
+
+        Request request = new Request.Builder()
+            .url("https://api.openai.com/v1/chat/completions")
+            .post(body)
+            .addHeader("Authorization", "Bearer " + apiKey)
+            .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if(!response.isSuccessful() || response.body() == null) {
+                throw new IOException("Unexpected : " + response);
+            }
+            String responseBody =  response.body().string(); //print(completion.choices[0].message)
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+            String content = jsonNode
+                .path("choices")
+                .get(0)
+                .path("message")
+                .path("content")
+                .asText();
+
+            List<String> result = new ArrayList<>();
+            result.add(prompt.toString());
+            result.add(content);
+
+            return result;
+        }
+    }
 
     // 대화 - 1:1 대화 내역
     public List<ChatEntity> showChat(Long landmarkId, Long userId) {
