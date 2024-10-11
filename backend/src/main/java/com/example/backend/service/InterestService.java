@@ -3,10 +3,8 @@ package com.example.backend.service;
 import com.example.backend.apiPayload.code.status.ErrorStatus;
 import com.example.backend.apiPayload.exception.handler.TempHandler;
 import com.example.backend.model.Interest;
-import com.example.backend.model.Landmark;
 import com.example.backend.model.UsersEntity;
 import com.example.backend.model.enums.Category;
-import com.example.backend.model.enums.Tag;
 import com.example.backend.repository.InterestRepository;
 import com.example.backend.repository.LandmarkRepository;
 import com.example.backend.repository.UserRepository;
@@ -15,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -25,9 +21,6 @@ public class InterestService {
 
     @Autowired
     private InterestRepository interestRepository;
-
-    @Autowired
-    private LandmarkRepository landmarkRepository;
 
     @Autowired
     private UserRepository userRepository;

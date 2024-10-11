@@ -1,24 +1,24 @@
 package com.example.backend.controller;
 
-
 import com.example.backend.dto.InterestDTO;
 import com.example.backend.dto.KakaoDto;
+import com.example.backend.dto.LandmarkResponseDTO;
 import com.example.backend.model.Interest;
+import com.example.backend.model.Landmark;
 import com.example.backend.model.enums.Category;
 import com.example.backend.model.enums.Tag;
+import com.example.backend.repository.LandmarkRepository;
 import com.example.backend.service.CategoryService;
 import com.example.backend.service.InterestService;
 import com.example.backend.service.KakaoService;
+import com.example.backend.service.LandmarkService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,6 +35,12 @@ public class InterestController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private LandmarkRepository landmarkRepository;
+
+    @Autowired
+    private LandmarkService landmarkService;
+
     // 로그인 시 최초 관심사 등록
     @Operation(summary = "최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. RequestPram userId에 토큰을 입력해주세요." +
             " Request body에는 다음과 같이 입력해주세요. [{ \"category\": \"MOUNTAIN\" }, { \"category\": \"BEACH_ISLAND\" } ]")
@@ -45,15 +51,15 @@ public class InterestController {
 
         List<Category> categories = interests.stream()
                 .map(InterestDTO::getCategory)
-                .collect(Collectors.toList());
+                .toList();
 
         List<Interest> savedEntity = interestService.addInterests(id, categories);
 
         // List<Interest>에서 category만 추출하여 DTO로 변환
         List<InterestDTO> savedDTOs = savedEntity.stream()
-            .map(interest -> new InterestDTO(
-                interest.getCategory())) // category만 뽑아서 DTO로 만듦
-            .collect(Collectors.toList());
+                .map(interest -> new InterestDTO(
+                        interest.getCategory())) // category만 뽑아서 DTO로 만듦
+                .toList();
 
         Map<String, Object> response = new LinkedHashMap<>(); // 순서가 userId - interest 순서
         response.put("userId", id);
@@ -81,7 +87,7 @@ public class InterestController {
             categoryTagMap.put("tag", tagName);
 
             return categoryTagMap;
-        }).collect(Collectors.toList());
+        }).toList();
 
         return ResponseEntity.ok().body(response);
     }
@@ -94,5 +100,32 @@ public class InterestController {
         Long id = userInfo.getId();
         interestService.deleteAllInterestsByUserId(id);
         return ResponseEntity.ok("All interests deleted for user " + id);
+    }
+
+    @Operation(summary = "관심사로 등록된 랜드마크 출력 API", description = "현재 등록된 관심사를 기반으로 랜드마크를 출력합니다. tag(Nature)로 검색 시, MOUNTAIN, " +
+            " BEACH_ISLAND, GARDEN, TRAIL, WATERFALL, DRIVE 중 관심사로 등록된 category에 해당하는 랜드마크가 출력됩니다.")
+    @GetMapping("/landmark")
+    // 관심사로 등록된 랜드마크 출력
+    public ResponseEntity<?> getInterestLandmark(@RequestParam("userId") String userId, @RequestParam("tag") Tag tag) {
+
+        KakaoDto Kdto = kakaoService.getUserInfo(userId);
+        Long id = Kdto.getId();
+
+        // 나의 관심사 목록에서 Category를 추출
+        List<Interest> interests = interestService.getAllInterest(id);
+        List<Category> interestCategories = interests.stream()
+                .map(Interest::getCategory) // Category를 그대로 가져옴
+                .toList();
+
+        // tag에 해당하는 Category...
+        List<Category> categories = categoryService.getCategoriesByTag(tag);
+
+        List<Category> newCategories = categories.stream()
+                .filter(interestCategories::contains)
+                .toList();
+
+        List<Landmark> result = landmarkRepository.findByCategories(newCategories);
+
+        return ResponseEntity.ok().body(result);
     }
 }

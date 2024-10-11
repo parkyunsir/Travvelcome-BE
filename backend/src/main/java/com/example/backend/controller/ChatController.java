@@ -18,11 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/chat")
@@ -48,7 +46,7 @@ public class ChatController {
 
     // 대화 - 질문하기 , 대화하기
     @Operation(summary = "챗봇 대화 API", description = "챗봇과 대화할 수 있는 API입니다. sent: 내가 보낸 메세지, received: gpt가 자동 생성하는 메세지입니다." +
-            " sent와 landmarkId만 넣어서 execute 해주세요. landmarkId RequestParam 입니다!")
+            " body에는 sent와 landmarkId만 넣어서 execute 해주세요. landmarkId, userId(token) RequestParam 입니다!")
     @PostMapping // /chat?landmarkId={}
     public ResponseEntity<?> createResponse(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId, @RequestBody ChatDTO dto) {
         try {
@@ -98,7 +96,7 @@ public class ChatController {
         List<ChatEntity> entities = chatService.showChat(landmarkId, id);
         List<ChatDTO> dtos = entities.stream()
                 .map(ChatDTO::new)
-                .collect(Collectors.toList());
+                .toList();
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("landmarkTitle", landmark.getTitle()); // landmark Title
@@ -125,7 +123,7 @@ public class ChatController {
 
         List<ChatDTO> dtos = entities.stream()
                 .map(ChatDTO::new)
-                .collect(Collectors.toList());
+                .toList();
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("landmarkTitle", landmark.getTitle()); // landmark Title
@@ -159,7 +157,7 @@ public class ChatController {
             "피그마에 /topic/pick란 이름으로 댓글 달았습니다! 이 부분에 활용해주시면 될 거 같습니다! ")
     // 주제 추천
     @PostMapping("/topic/pick")
-    public ResponseEntity<?> compareLandmarkCategories(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId, @RequestBody ChatDTO dto) throws IOException {
+    public ResponseEntity<?> compareLandmarkCategories(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId) throws IOException {
 
         KakaoDto Kdto = kakaoService.getUserInfo(userId);
         Long id = Kdto.getId();
@@ -169,13 +167,13 @@ public class ChatController {
                 .orElseThrow(() -> new IllegalArgumentException("Landmark not found"));
         List<String> landmarkCategories = landmark.getCategories().stream()
                 .map(Category::toString) // Category를 String으로 변환
-                .collect(Collectors.toList());
+                .toList();
 
         // 나의 관심사 목록에서 Category를 추출
         List<Interest> interests = interestService.getAllInterest(id);
         List<String> interestCategories = interests.stream()
                 .map(interest -> interest.getCategory().toString()) // Category를 String으로 변환
-                .collect(Collectors.toList());
+                .toList();
 
         // 서비스 호출하여 일치하는 카테고리 반환
         List<String> topics = landmarkService.findCategories(landmarkCategories, interestCategories);
