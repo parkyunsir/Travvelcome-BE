@@ -27,12 +27,6 @@ public class ChatEntity {
     // 랜드마크
     private Long landmarkId;
 
-    // 태그
-    private String tagId;
-
-    // 카테고리
-    private String categoryId;
-
     // userId
     // private String userId;
 
