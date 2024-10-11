@@ -155,7 +155,8 @@ public class ChatController {
     }
 
 
-    @Operation(summary = "[주제 pick] 관심사 질문 추천 API", description = "랜드마크의 category와 내가 선택한 관심사 중 일치하는 것만 보여주는 API입니다!")
+    @Operation(summary = "[주제 pick] 관심사 질문 추천 API", description = "랜드마크의 category와 내가 선택한 관심사 중 일치하는 것만 보여주는 API입니다!" +
+            "피그마에 /topic/pick란 이름으로 댓글 달았습니다! 이 부분에 활용해주시면 될 거 같습니다! ")
     // 주제 추천
     @PostMapping("/topic/pick")
     public ResponseEntity<?> compareLandmarkCategories(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId, @RequestBody ChatDTO dto) throws IOException {
