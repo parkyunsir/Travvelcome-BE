@@ -25,4 +25,8 @@ public interface LandmarkRepository extends JpaRepository<Landmark, Long> {
   // id와 title로 가져오기
   List<Landmark> findByIdInAndTitleContaining(List<Long> landmarkIds, String title);
 
+  // 특정 카테고리 목록에 포함된 랜드마크 찾기
+  @Query("SELECT l FROM Landmark l JOIN l.categories c WHERE c IN :categories")
+  List<Landmark> findByCategories(@Param("categories") List<Category> categories);
+
 }

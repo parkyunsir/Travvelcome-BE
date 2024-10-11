@@ -2,7 +2,6 @@ package com.example.backend.dto;
 
 import com.example.backend.model.Interest;
 import com.example.backend.model.enums.Category;
-import com.example.backend.model.enums.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
@@ -16,7 +15,6 @@ import lombok.*;
 public class InterestDTO {
     private Long id;
     private Category category;
-
     public InterestDTO(Interest entity) {
         this.id = entity.getId();
         this.category = entity.getCategory();

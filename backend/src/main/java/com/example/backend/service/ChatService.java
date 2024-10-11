@@ -2,7 +2,6 @@ package com.example.backend.service;
 
 import com.example.backend.dto.ChatDTO;
 import com.example.backend.model.ChatEntity;
-import com.example.backend.model.Interest;
 import com.example.backend.model.Landmark;
 import com.example.backend.model.enums.Category;
 import com.example.backend.repository.ChatRepository;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import okhttp3.*;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,9 +37,6 @@ public class ChatService {
 
     @Autowired
     private LandmarkRepository landmarkRepository;
-
-    @Autowired
-    private InterestService interestService;
 
 
     // 챗GPT 답변 생성
