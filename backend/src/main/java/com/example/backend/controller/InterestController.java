@@ -31,10 +31,7 @@ public class InterestController {
 
     // 로그인 시 최초 관심사 등록
     @Operation(summary = "최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. RequestPram userId에 토큰을 입력해주세요." +
-            " Request body에는 다음과 같이 입력해주세요. [\n" +
-            "  { \"category\": \"MOUNTAIN\" },\n" +
-            "  { \"category\": \"BEACH_ISLAND\" }\n" +
-            "]")
+            " Request body에는 다음과 같이 입력해주세요. [{ \"category\": \"MOUNTAIN\" }, { \"category\": \"BEACH_ISLAND\" } ]")
     @PostMapping()
     public ResponseEntity<?> addInterest(@RequestBody List<InterestDTO> interests, @RequestParam String userId) {
         KakaoDto dto = kakaoService.getUserInfo(userId);
