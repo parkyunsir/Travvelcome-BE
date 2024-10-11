@@ -20,10 +20,7 @@ public interface ChatRepository extends JpaRepository<ChatEntity, String> {
             "ORDER BY c.date DESC")
     List<ChatEntity> findLatestChatByLandmarkIds(@Param("landmarkIds") List<Long> landmarkIds);
 
-
-    // 대화 내역 검색하기
-//    List<ChatEntity> findBySentContainingOrReceivedContaining(String sent, String received);
-
+    // sent received 상관없이 대화 검색
     List<ChatEntity> findByLandmarkIdAndUserIdAndSentContainingOrReceivedContaining(Long landmarkId, Long userId, String text, String text2);
 
 

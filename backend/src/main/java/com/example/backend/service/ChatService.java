@@ -52,8 +52,9 @@ public class ChatService {
         Optional<String> title = landmarkRepository.findTitleById(lid); // id로 이름 출력.
 
         String ltitle = title.get();
+        String sent = "";
 
-        String response = getCompletion(entity.getSent(), ltitle, lid, userId);
+        String response = getCompletion(sent, ltitle, lid, userId);
         entity.setReceived(response);
         entity.setDate(LocalDateTime.now());
         entity.setUserId(userId);
@@ -137,21 +138,16 @@ public class ChatService {
 
         String ltitle = title.get();
 
-        List<String> result = getTopicCompletion(topic, ltitle, lid, userId);
-
-        log.info("ltitle " + ltitle);
-        log.info("result(0) " + result.get(0));
-        log.info("result(1) " + result.get(1));
-
-        entity.setSent(result.get(0)); // prompt
-        entity.setReceived(result.get(1)); // content
+        List<String> response = getTopicCompletion(entity.getSent(), ltitle, lid, userId, topic);
+        entity.setSent(response.get(0));
+        entity.setReceived(response.get(1));
         entity.setDate(LocalDateTime.now());
         entity.setUserId(userId);
         return chatRepository.save(entity);
     }
 
     // 주제 선택 - 대화하기
-    public List<String> getTopicCompletion(String topic, String title, Long landmarkId,Long userId) throws IOException {
+    public List<String> getTopicCompletion(String prompt, String title, Long landmarkId,Long userId, String topic) throws IOException {
         List<ChatEntity> entities = chatRepository.findByLandmarkIdAndUserId(landmarkId,userId);
         StringBuilder contentBuilder = new StringBuilder();
         contentBuilder.append(String.format("너는 %s이야. ", title));
@@ -182,16 +178,8 @@ public class ChatService {
         system.put("content", contentBuilder.toString() + "라고 했어.");
         user.put("role", "user");
 
-        StringBuilder prompt = new StringBuilder();
-        prompt.append(title);
-        prompt.append("의 ");
-        prompt.append(topic);
-        prompt.append("사실에 대해 알려줘.");
-
-        // 추가된 내용을 `content`에 넣기
-        user.put("content", prompt.toString());
-
-        user.put("content", topic);
+        prompt = "너에 대한 " + topic +" 궁금해!";
+        user.put("content", prompt);
         JSONArray messagesArray = new JSONArray();
         messagesArray.add(system);
         messagesArray.add(user);
@@ -218,18 +206,18 @@ public class ChatService {
             String responseBody =  response.body().string(); //print(completion.choices[0].message)
             JsonNode jsonNode = objectMapper.readTree(responseBody);
 
-            String content = jsonNode
-                .path("choices")
-                .get(0)
-                .path("message")
-                .path("content")
-                .asText();
+        String content = jsonNode
+            .path("choices")
+            .get(0)
+            .path("message")
+            .path("content")
+            .asText();
 
-            List<String> result = new ArrayList<>();
-            result.add(prompt.toString());
-            result.add(content);
+        List<String> result = new ArrayList<>();
+        result.add(prompt.toString());
+        result.add(content);
 
-            return result;
+        return result;
         }
     }
 
