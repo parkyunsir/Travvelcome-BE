@@ -155,7 +155,7 @@ public class ChatController {
     }
 
 
-    @Operation(summary = "[주제 pick] 관심사 질문 추천 API", description = "랜드마크의 category와 내가 선택한 관심사 중 일치하는 것만 보여주는 API입니다!" +
+    @Operation(summary = "[주제 pick (1) ] 관심사 질문 추천 API", description = "랜드마크의 category와 내가 저장한 관심사 중 일치하는 카테고리만 보여주는 API입니다!" +
             "피그마에 /topic/pick란 이름으로 댓글 달았습니다! 이 부분에 활용해주시면 될 거 같습니다! ")
     // 주제 추천
     @PostMapping("/topic/pick")
@@ -183,7 +183,7 @@ public class ChatController {
         return ResponseEntity.ok(topics); // 일치하는 카테고리 리스트 반환
     }
 
-    @Operation(summary = "[주제 pick] 관심사 질문 대화 API", description = "관심사 질문 추천 API에서 선택된 selectedTopic으로 chatbot과 대화할 수 있는 API입니다! (선택하는 과정은 프론트에서 진행해주세요!)")
+    @Operation(summary = "[주제 pick (2)] 관심사 질문 대화 API", description = "[주제 pick (1) ]을 먼저 진행하고 해주세요. 관심사 질문 추천 API에서 선택된 selectedTopic으로 chatbot과 대화할 수 있는 API입니다! (선택하는 과정은 프론트에서 진행해주세요!)")
     @PostMapping("/topic")
     public ResponseEntity<?> autoChatting(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId,
                                           @RequestParam("selectedTopic") String selectedTopic, @RequestBody ChatDTO dto) throws IOException {
