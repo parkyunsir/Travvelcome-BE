@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -156,8 +157,8 @@ public class ChatController {
 
     @Operation(summary = "공통 관심사 API", description = "랜드마크의 category와 내가 선택한 관심사 중 일치하는 것만 보여주는 API입니다!")
     // 주제 추천
-    @PostMapping("/compare")
-    public List<String> compareLandmarkCategories(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId) {
+    @PostMapping("/topic")
+    public ResponseEntity<?> compareLandmarkCategories(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId, @RequestBody ChatDTO dto) throws IOException {
 
         KakaoDto Kdto = kakaoService.getUserInfo(userId);
         Long id = Kdto.getId();
@@ -176,7 +177,27 @@ public class ChatController {
                 .collect(Collectors.toList());
 
         // 서비스 호출하여 일치하는 카테고리 반환
-        return landmarkService.findCategories(landmarkCategories, interestCategories);
+        List<String> topics = landmarkService.findCategories(landmarkCategories, interestCategories);
+
+        // topics가 비어있으면 예외 발생
+        if (topics.isEmpty()) {
+            throw new IllegalArgumentException("No topics found.");
+        }
+
+        ChatEntity entity = ChatDTO.toEntity(dto);
+        entity.setChatId(null);
+        entity.setReceived(null);
+        entity.setLandmarkId(landmarkId);
+
+        // 대화
+        ChatEntity savedEntity = null;
+        for (int i = 0; i < topics.size(); i++) {
+            // topics의 각 항목에 대해 createTopicResponse 호출
+            savedEntity = chatService.createTopicResponse(entity, id, topics.get(i));
+        }
+
+        ChatDTO savedDto = new ChatDTO(savedEntity);
+        return ResponseEntity.ok().body(savedDto);
     }
 
     // [/chatting]
