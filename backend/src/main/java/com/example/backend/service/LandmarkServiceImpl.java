@@ -220,6 +220,15 @@ public class LandmarkServiceImpl implements LandmarkService {
         .collect(Collectors.toList());
   }
 
+  // 나의 관심사와 landmark의 관심사가 일치하면 category 출력.
+  @Override
+  public List<String> findCategories(List<String> landmarkCategories, List<String> categoryList) {
+    // landmarkCategories와 categoryList를 비교해서 공통된 값을 찾음
+    return landmarkCategories.stream()
+            .filter(categoryList::contains) // categoryList에 있는 항목만 필터링
+            .collect(Collectors.toList()); // 리스트로 반환
+  }
+
   // Haversine 공식을 사용한 거리 계산 (단위: km)
   private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     final int EARTH_RADIUS = 6371; // 지구 반경 (단위: km)

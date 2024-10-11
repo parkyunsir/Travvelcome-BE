@@ -2,7 +2,9 @@ package com.example.backend.service;
 
 import com.example.backend.dto.ChatDTO;
 import com.example.backend.model.ChatEntity;
+import com.example.backend.model.Interest;
 import com.example.backend.model.Landmark;
+import com.example.backend.model.enums.Category;
 import com.example.backend.repository.ChatRepository;
 import com.example.backend.repository.LandmarkRepository;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,6 +40,9 @@ public class ChatService {
     @Autowired
     private LandmarkRepository landmarkRepository;
 
+    @Autowired
+    private InterestService interestService;
+
 
     // 챗GPT 답변 생성
     public ChatEntity createResponse(ChatEntity entity, Long userId) throws IOException {
@@ -53,7 +58,7 @@ public class ChatService {
         return chatRepository.save(entity);
     }
 
-    // 이전 대화 내용 기억하기
+    // 대화 시작 및 이전 대화 내용 기억하기
     public String getCompletion(String prompt, Optional<String> title) throws IOException {
         List<ChatEntity> entities = chatRepository.findAll();
         StringBuilder contentBuilder = new StringBuilder();
@@ -122,6 +127,22 @@ public class ChatService {
                     .asText();
         }
     }
+
+    // 주제 선택 - 대화하기
+    public ChatEntity createTopicResponse(ChatEntity entity, Long userId, String topic) throws IOException {
+        validate(entity);
+
+        Long lid = entity.getLandmarkId(); // entity의 id
+        Optional<String> title = landmarkRepository.findTitleById(lid); // id로 이름 출력.
+
+        String response = getCompletion(entity.getSent(), title);
+        entity.setReceived(response);
+        entity.setDate(LocalDateTime.now());
+        entity.setUserId(userId);
+        return chatRepository.save(entity);
+    }
+
+    // 주제 선택 - 대화하기
 
     // 대화 - 1:1 대화 내역
     public List<ChatEntity> showChat(Long landmarkId, Long userId) {
@@ -204,15 +225,22 @@ public class ChatService {
                         Landmark::getId,
                         Landmark::getImageUrl));
 
+        // category
+        Map<Long, List<Category>> landmarkCategory = landmarks.stream()
+                .collect(Collectors.toMap(
+                        Landmark::getId,
+                        Landmark::getCategories));
+
         // 이 id를 토대로 ChatEntity 반환하기.
         List<ChatEntity> chatEntities = chatRepository.findLatestChatByLandmarkIds(landmarkIds);
 
         return chatEntities.stream()
                 .map(chatEntity -> {
-                    Map<String, Object> map = new HashMap<>();
+                    Map<String, Object> map = new LinkedHashMap<>();
                     map.put("landmarkId", chatEntity.getLandmarkId());
                     map.put("landmarkTitle", landmarkTitle.get(chatEntity.getLandmarkId())); // title
                     map.put("landmarkImage", landmarkImage.get(chatEntity.getLandmarkId())); // image
+                    map.put("landmarkCategory", landmarkCategory.get(chatEntity.getLandmarkId())); // category
                     map.put("received", chatEntity.getReceived());
                     map.put("date", chatEntity.getDate());
                     return map;

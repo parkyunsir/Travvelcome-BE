@@ -4,10 +4,14 @@ import com.example.backend.apiPayload.ApiResponse;
 import com.example.backend.dto.ChatDTO;
 import com.example.backend.dto.KakaoDto;
 import com.example.backend.model.ChatEntity;
+import com.example.backend.model.Interest;
 import com.example.backend.model.Landmark;
+import com.example.backend.model.enums.Category;
 import com.example.backend.repository.LandmarkRepository;
 import com.example.backend.service.ChatService;
+import com.example.backend.service.InterestService;
 import com.example.backend.service.KakaoService;
+import com.example.backend.service.LandmarkService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +38,12 @@ public class ChatController {
 
     @Autowired
     private KakaoService kakaoService;
+
+    @Autowired
+    private LandmarkService landmarkService;
+
+    @Autowired
+    private InterestService interestService;
 
     // 대화 - 질문하기 , 대화하기
     @Operation(summary = "챗봇 대화 API", description = "챗봇과 대화할 수 있는 API입니다. sent: 내가 보낸 메세지, received: gpt가 자동 생성하는 메세지입니다." +
@@ -92,6 +102,7 @@ public class ChatController {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("landmarkTitle", landmark.getTitle()); // landmark Title
         response.put("landmarkImage",landmark.getImageUrl()); // landmark ImageUrl
+        response.put("landmarkCategory", landmark.getCategories());
         response.put("chatList", dtos);
 
         return ResponseEntity.ok().body(response);
@@ -111,10 +122,21 @@ public class ChatController {
 
         List<ChatEntity> entities = chatService.searchChatting(landmarkId, text, id);
 
-        List<ChatDTO> dtos = entities.stream().map(ChatDTO::new).collect(Collectors.toList());
-        return ResponseEntity.ok().body(dtos);
+        List<ChatDTO> dtos = entities.stream()
+                .map(ChatDTO::new)
+                .collect(Collectors.toList());
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("landmarkTitle", landmark.getTitle()); // landmark Title
+        response.put("landmarkImage",landmark.getImageUrl()); // landmark ImageUrl
+        response.put("landmarkCategory", landmark.getCategories());
+        response.put("chatList", dtos);
+
+        return ResponseEntity.ok().body(response);
     }
 
+    // [/chatting/history]
+    // 대화 - 대화 검색하기 (단어만 추출)
     @Operation(summary = "[/chatting/history] 챗봇 history 검색 - 단어 추출 API", description = "챗봇과 대화 내역을 검색하면, 검색된 단어만 추출하는 API입니다." +
             " (ex- 나는 학교에 갑니다. text에 '학교' 입력 시 '학교에' return) landmarkId RequestParam, 검색어(text) RequestParam 입니다!")
     @GetMapping("/search/word") // /chat/search/word?landmarkId={}&text={}
@@ -129,6 +151,32 @@ public class ChatController {
         List<ChatDTO> dtos = chatService.searchChattingWord(landmarkId, text, id);
 
         return ResponseEntity.ok().body(dtos);
+    }
+
+
+    @Operation(summary = "공통 관심사 API", description = "랜드마크의 category와 내가 선택한 관심사 중 일치하는 것만 보여주는 API입니다!")
+    // 주제 추천
+    @PostMapping("/compare")
+    public List<String> compareLandmarkCategories(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId) {
+
+        KakaoDto Kdto = kakaoService.getUserInfo(userId);
+        Long id = Kdto.getId();
+
+        // 현재 랜드마크에서 Category를 추출
+        Landmark landmark = landmarkRepository.findById(landmarkId)
+                .orElseThrow(() -> new IllegalArgumentException("Landmark not found"));
+        List<String> landmarkCategories = landmark.getCategories().stream()
+                .map(Category::toString) // Category를 String으로 변환
+                .collect(Collectors.toList());
+
+        // 나의 관심사 목록에서 Category를 추출
+        List<Interest> interests = interestService.getAllInterest(id);
+        List<String> interestCategories = interests.stream()
+                .map(interest -> interest.getCategory().toString()) // Category를 String으로 변환
+                .collect(Collectors.toList());
+
+        // 서비스 호출하여 일치하는 카테고리 반환
+        return landmarkService.findCategories(landmarkCategories, interestCategories);
     }
 
     // [/chatting]
