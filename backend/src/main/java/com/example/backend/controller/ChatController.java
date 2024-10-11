@@ -209,8 +209,12 @@ public class ChatController {
     // 목록 - (최신순) landmark 대화 list
     @Operation(summary = "[/chatting] 챗봇 목록 API", description = "대화한 챗봇 목록을 보여주는 API입니다!")
     @GetMapping("/list") // /chat/list
-    public ResponseEntity<?> showChatList(){
-        List<Map<String, Object>> entities =  chatService.showList();
+    public ResponseEntity<?> showChatList(@RequestParam("userId") String userId){
+
+        KakaoDto Kdto = kakaoService.getUserInfo(userId);
+        Long id = Kdto.getId();
+
+        List<Map<String, Object>> entities =  chatService.showList(id);
 
         return convertEntityToDto(entities);
     }
@@ -219,8 +223,12 @@ public class ChatController {
     // 목록 - landmark 검색
     @Operation(summary = "[/chatting] 챗봇 목록 검색 API", description = "대화한 챗봇 목록에서 관광지를 검색할 수 있는 API입니다! 랜드마크이름(title) RequestParam 입니다!")
     @GetMapping("/list/search") // /chat/list/search?title={}
-    public ResponseEntity<?> searchLandmarkList(@RequestParam("title") String title) {
-        List<Map<String, Object>> entities = chatService.searchLandmark(title);
+    public ResponseEntity<?> searchLandmarkList(@RequestParam("title") String title, @RequestParam("userId") String userId) {
+
+        KakaoDto Kdto = kakaoService.getUserInfo(userId);
+        Long id = Kdto.getId();
+
+        List<Map<String, Object>> entities = chatService.searchLandmark(title, id);
 
         return convertEntityToDto(entities);
     }

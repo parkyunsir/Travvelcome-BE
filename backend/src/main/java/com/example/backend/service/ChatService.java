@@ -253,8 +253,8 @@ public class ChatService {
             .collect(Collectors.toList());
     }
 
-        // 검색어 부분 추출
-        private String extractMatchingText(String message, String text) {
+    // 검색어 부분 추출
+    private String extractMatchingText(String message, String text) {
             // 메시지를 띄어쓰기 단위로 분리
             String[] words = message.split(" ");
 
@@ -267,17 +267,25 @@ public class ChatService {
             return "";  // 검색어가 포함된 단어가 없으면 빈 문자열 반환
         }
 
-    // 목록 - 랜드마크 리스트
-    public List<Map<String, Object>> showList() {
+    // 목록 - 대화 리스트
+    public List<Map<String, Object>> showList(Long userId) {
+
+        // chat에서 userId가 있는 landmarId 가져오기
+        List<Long> landmarkIds = chatRepository.findLandmarkIdsByUserId(userId);
+
         // 모든 LandmarkId 가져오기
-        List<Landmark> landmarks = landmarkRepository.findAll();
+        List<Landmark> landmarks = landmarkRepository.findAllById(landmarkIds);
 
         return convert(landmarks);
     }
 
-    // 목록 - 랜드마크 이름 검색하기
-    public List<Map<String, Object>> searchLandmark(final String title) {
-        List<Landmark> landmarks = landmarkRepository.findByTitleContaining(title);
+    // 목록 - 대화 리스트 - 관광지 이름 검색하기
+    public List<Map<String, Object>> searchLandmark(final String title, Long userId) {
+        // userId와 연관된 landmarkId 목록 가져오기
+        List<Long> landmarkIds = chatRepository.findLandmarkIdsByUserId(userId);
+
+        // landmarkId와 title로 Landmark 목록 조회
+        List<Landmark> landmarks = landmarkRepository.findByIdInAndTitleContaining(landmarkIds, title);
 
         return convert(landmarks);
     }
