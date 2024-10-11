@@ -14,16 +14,18 @@ public interface ChatRepository extends JpaRepository<ChatEntity, String> {
     // landmark별로 chat 내역 출력
     List<ChatEntity> findByLandmarkIdAndUserId(Long landmarkId, Long userId);
 
+    // userId별로 chat 내역 출력
+    @Query("SELECT c.landmarkId FROM ChatEntity c WHERE c.userId = :userId")
+    List<Long> findLandmarkIdsByUserId(@Param("userId") Long userId);
+
+
     // landmark별 date chatList 가져오기
     @Query("SELECT c FROM ChatEntity c WHERE c.landmarkId IN :landmarkIds " +
             "AND c.date = (SELECT MAX(c2.date) FROM ChatEntity c2 WHERE c2.landmarkId = c.landmarkId) " +
             "ORDER BY c.date DESC")
     List<ChatEntity> findLatestChatByLandmarkIds(@Param("landmarkIds") List<Long> landmarkIds);
 
-
-    // 대화 내역 검색하기
-//    List<ChatEntity> findBySentContainingOrReceivedContaining(String sent, String received);
-
+    // sent received 대화 검색
     List<ChatEntity> findByLandmarkIdAndUserIdAndSentContainingOrReceivedContaining(Long landmarkId, Long userId, String text, String text2);
 
 

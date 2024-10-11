@@ -155,9 +155,10 @@ public class ChatController {
     }
 
 
-    @Operation(summary = "공통 관심사 API", description = "랜드마크의 category와 내가 선택한 관심사 중 일치하는 것만 보여주는 API입니다!")
+    @Operation(summary = "[주제 pick] 관심사 질문 추천 API", description = "랜드마크의 category와 내가 선택한 관심사 중 일치하는 것만 보여주는 API입니다!" +
+            "피그마에 /topic/pick란 이름으로 댓글 달았습니다! 이 부분에 활용해주시면 될 거 같습니다! ")
     // 주제 추천
-    @PostMapping("/topic")
+    @PostMapping("/topic/pick")
     public ResponseEntity<?> compareLandmarkCategories(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId, @RequestBody ChatDTO dto) throws IOException {
 
         KakaoDto Kdto = kakaoService.getUserInfo(userId);
@@ -179,10 +180,16 @@ public class ChatController {
         // 서비스 호출하여 일치하는 카테고리 반환
         List<String> topics = landmarkService.findCategories(landmarkCategories, interestCategories);
 
-        // topics가 비어있으면 예외 발생
-        if (topics.isEmpty()) {
-            throw new IllegalArgumentException("No topics found.");
-        }
+        return ResponseEntity.ok(topics); // 일치하는 카테고리 리스트 반환
+    }
+
+    @Operation(summary = "[주제 pick] 관심사 질문 대화 API", description = "관심사 질문 추천 API에서 선택된 selectedTopic으로 chatbot과 대화할 수 있는 API입니다! (선택하는 과정은 프론트에서 진행해주세요!)")
+    @PostMapping("/topic")
+    public ResponseEntity<?> autoChatting(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId,
+                                          @RequestParam("selectedTopic") String selectedTopic, @RequestBody ChatDTO dto) throws IOException {
+
+        KakaoDto Kdto = kakaoService.getUserInfo(userId);
+        Long id = Kdto.getId();
 
         ChatEntity entity = ChatDTO.toEntity(dto);
         entity.setChatId(null);
@@ -190,13 +197,11 @@ public class ChatController {
         entity.setLandmarkId(landmarkId);
 
         // 대화
-        ChatEntity savedEntity = null;
-        for (int i = 0; i < topics.size(); i++) {
-            // topics의 각 항목에 대해 createTopicResponse 호출
-            savedEntity = chatService.createTopicResponse(entity, id, topics.get(i));
-        }
+        // topics의 각 항목에 대해 createTopicResponse 호출
+        ChatEntity savedEntity = chatService.createTopicResponse(entity, id, selectedTopic);
 
         ChatDTO savedDto = new ChatDTO(savedEntity);
+
         return ResponseEntity.ok().body(savedDto);
     }
 
@@ -204,8 +209,12 @@ public class ChatController {
     // 목록 - (최신순) landmark 대화 list
     @Operation(summary = "[/chatting] 챗봇 목록 API", description = "대화한 챗봇 목록을 보여주는 API입니다!")
     @GetMapping("/list") // /chat/list
-    public ResponseEntity<?> showChatList(){
-        List<Map<String, Object>> entities =  chatService.showList();
+    public ResponseEntity<?> showChatList(@RequestParam("userId") String userId){
+
+        KakaoDto Kdto = kakaoService.getUserInfo(userId);
+        Long id = Kdto.getId();
+
+        List<Map<String, Object>> entities =  chatService.showList(id);
 
         return convertEntityToDto(entities);
     }
@@ -214,8 +223,12 @@ public class ChatController {
     // 목록 - landmark 검색
     @Operation(summary = "[/chatting] 챗봇 목록 검색 API", description = "대화한 챗봇 목록에서 관광지를 검색할 수 있는 API입니다! 랜드마크이름(title) RequestParam 입니다!")
     @GetMapping("/list/search") // /chat/list/search?title={}
-    public ResponseEntity<?> searchLandmarkList(@RequestParam("title") String title) {
-        List<Map<String, Object>> entities = chatService.searchLandmark(title);
+    public ResponseEntity<?> searchLandmarkList(@RequestParam("title") String title, @RequestParam("userId") String userId) {
+
+        KakaoDto Kdto = kakaoService.getUserInfo(userId);
+        Long id = Kdto.getId();
+
+        List<Map<String, Object>> entities = chatService.searchLandmark(title, id);
 
         return convertEntityToDto(entities);
     }

@@ -52,8 +52,9 @@ public class ChatService {
         Optional<String> title = landmarkRepository.findTitleById(lid); // id로 이름 출력.
 
         String ltitle = title.get();
+        String sent = "";
 
-        String response = getCompletion(entity.getSent(), ltitle, lid, userId);
+        String response = getCompletion(sent, ltitle, lid, userId);
         entity.setReceived(response);
         entity.setDate(LocalDateTime.now());
         entity.setUserId(userId);
@@ -137,21 +138,16 @@ public class ChatService {
 
         String ltitle = title.get();
 
-        List<String> result = getTopicCompletion(topic, ltitle, lid, userId);
-
-        log.info("ltitle " + ltitle);
-        log.info("result(0) " + result.get(0));
-        log.info("result(1) " + result.get(1));
-
-        entity.setSent(result.get(0)); // prompt
-        entity.setReceived(result.get(1)); // content
+        List<String> response = getTopicCompletion(entity.getSent(), ltitle, lid, userId, topic);
+        entity.setSent(response.get(0));
+        entity.setReceived(response.get(1));
         entity.setDate(LocalDateTime.now());
         entity.setUserId(userId);
         return chatRepository.save(entity);
     }
 
     // 주제 선택 - 대화하기
-    public List<String> getTopicCompletion(String topic, String title, Long landmarkId,Long userId) throws IOException {
+    public List<String> getTopicCompletion(String prompt, String title, Long landmarkId,Long userId, String topic) throws IOException {
         List<ChatEntity> entities = chatRepository.findByLandmarkIdAndUserId(landmarkId,userId);
         StringBuilder contentBuilder = new StringBuilder();
         contentBuilder.append(String.format("너는 %s이야. ", title));
@@ -182,16 +178,8 @@ public class ChatService {
         system.put("content", contentBuilder.toString() + "라고 했어.");
         user.put("role", "user");
 
-        StringBuilder prompt = new StringBuilder();
-        prompt.append(title);
-        prompt.append("의 ");
-        prompt.append(topic);
-        prompt.append("사실에 대해 알려줘.");
-
-        // 추가된 내용을 `content`에 넣기
-        user.put("content", prompt.toString());
-
-        user.put("content", topic);
+        prompt = "너에 대한 " + topic +" 궁금해!";
+        user.put("content", prompt);
         JSONArray messagesArray = new JSONArray();
         messagesArray.add(system);
         messagesArray.add(user);
@@ -218,18 +206,18 @@ public class ChatService {
             String responseBody =  response.body().string(); //print(completion.choices[0].message)
             JsonNode jsonNode = objectMapper.readTree(responseBody);
 
-            String content = jsonNode
-                .path("choices")
-                .get(0)
-                .path("message")
-                .path("content")
-                .asText();
+        String content = jsonNode
+            .path("choices")
+            .get(0)
+            .path("message")
+            .path("content")
+            .asText();
 
-            List<String> result = new ArrayList<>();
-            result.add(prompt.toString());
-            result.add(content);
+        List<String> result = new ArrayList<>();
+        result.add(prompt.toString());
+        result.add(content);
 
-            return result;
+        return result;
         }
     }
 
@@ -265,8 +253,8 @@ public class ChatService {
             .collect(Collectors.toList());
     }
 
-        // 검색어 부분 추출
-        private String extractMatchingText(String message, String text) {
+    // 검색어 부분 추출
+    private String extractMatchingText(String message, String text) {
             // 메시지를 띄어쓰기 단위로 분리
             String[] words = message.split(" ");
 
@@ -279,17 +267,25 @@ public class ChatService {
             return "";  // 검색어가 포함된 단어가 없으면 빈 문자열 반환
         }
 
-    // 목록 - 랜드마크 리스트
-    public List<Map<String, Object>> showList() {
+    // 목록 - 대화 리스트
+    public List<Map<String, Object>> showList(Long userId) {
+
+        // chat에서 userId가 있는 landmarId 가져오기
+        List<Long> landmarkIds = chatRepository.findLandmarkIdsByUserId(userId);
+
         // 모든 LandmarkId 가져오기
-        List<Landmark> landmarks = landmarkRepository.findAll();
+        List<Landmark> landmarks = landmarkRepository.findAllById(landmarkIds);
 
         return convert(landmarks);
     }
 
-    // 목록 - 랜드마크 이름 검색하기
-    public List<Map<String, Object>> searchLandmark(final String title) {
-        List<Landmark> landmarks = landmarkRepository.findByTitleContaining(title);
+    // 목록 - 대화 리스트 - 관광지 이름 검색하기
+    public List<Map<String, Object>> searchLandmark(final String title, Long userId) {
+        // userId와 연관된 landmarkId 목록 가져오기
+        List<Long> landmarkIds = chatRepository.findLandmarkIdsByUserId(userId);
+
+        // landmarkId와 title로 Landmark 목록 조회
+        List<Landmark> landmarks = landmarkRepository.findByIdInAndTitleContaining(landmarkIds, title);
 
         return convert(landmarks);
     }
