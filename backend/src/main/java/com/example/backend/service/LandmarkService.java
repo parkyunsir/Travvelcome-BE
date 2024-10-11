@@ -26,4 +26,7 @@ public interface LandmarkService {
   void findLandmark(Long landmarkId, long userId);
 
   List<LandmarkRecommendDTO> getRecommendedLandmarks(double mapX, double mapY, long userId);
+
+  // 나의 관심사와 landmark의 관심사가 일치하면 category 출력.
+  List<String> findCategories(List<String> landmarkCategories, List<String> categoryList);
 }
