@@ -6,9 +6,11 @@ import com.example.backend.dto.KakaoDto;
 import com.example.backend.model.Interest;
 import com.example.backend.model.enums.Category;
 import com.example.backend.model.enums.Tag;
+import com.example.backend.service.CategoryService;
 import com.example.backend.service.InterestService;
 import com.example.backend.service.KakaoService;
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
+@Slf4j
 @RequestMapping("/interest")
 public class InterestController {
 
@@ -28,6 +31,9 @@ public class InterestController {
 
     @Autowired
     private KakaoService kakaoService;
+
+    @Autowired
+    private CategoryService categoryService;
 
     // 로그인 시 최초 관심사 등록
     @Operation(summary = "최초 관심사 등록 API", description = "최초 로그인 시, 관심사 등록할 수 있는 API입니다. RequestPram userId에 토큰을 입력해주세요." +
@@ -57,7 +63,7 @@ public class InterestController {
     }
 
     // 현재 관심사
-    @Operation(summary = "현재 관심사 출력 API", description = "현재 등록된 관심사를 출력할 수 있는 API입니다.")
+    @Operation(summary = "현재 관심사 출력 API", description = "현재 등록된 관심사를 출력할 수 있는 API입니다. category에 상응하는 tag도 출력됩니다. RequestPram userId에 토큰을 입력해주세요.")
     @GetMapping()
     public ResponseEntity<?> getInterest(@RequestParam String userId) {
         KakaoDto userInfo = kakaoService.getUserInfo(userId);
@@ -65,10 +71,19 @@ public class InterestController {
 
         List<Interest> interests = interestService.getAllInterest(id);
 
-        List<InterestDTO> dtos = interests.stream().map(
-                InterestDTO::new).collect(Collectors.toList());
+        List<Map<String, String>> response = interests.stream().map(interest -> {
+            Map<String, String> categoryTagMap = new HashMap<>();
+            categoryTagMap.put("category", interest.getCategory().toString());
 
-        return ResponseEntity.ok().body(dtos);
+            // 카테고리에 해당하는 첫 번째 tag 조회
+            List<Tag> tags = categoryService.getTagsByCategory(interest.getCategory());
+            String tagName = tags.isEmpty() ? null : tags.get(0).toString(); // 첫 번째 tag 가져오기
+            categoryTagMap.put("tag", tagName);
+
+            return categoryTagMap;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(response);
     }
 
     // 관심사 전체 삭제

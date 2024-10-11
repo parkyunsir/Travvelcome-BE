@@ -12,16 +12,14 @@ import lombok.*;
 @Data
 @Getter
 @Setter
-@JsonIgnoreProperties({"id", "tag"})
+@JsonIgnoreProperties({"id"})
 public class InterestDTO {
     private Long id;
     private Category category;
-    private Tag tag;
 
     public InterestDTO(Interest entity) {
         this.id = entity.getId();
         this.category = entity.getCategory();
-        this.tag = entity.getTag();
     }
 
     // Category를 받는 생성자 추가
@@ -33,7 +31,6 @@ public class InterestDTO {
         return Interest.builder()
                 .id(dto.getId())
                 .category(dto.getCategory())
-                .tag(dto.getTag())
                 .build();
     }
 }

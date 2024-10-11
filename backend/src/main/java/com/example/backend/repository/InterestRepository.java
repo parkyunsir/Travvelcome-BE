@@ -12,12 +12,6 @@ import java.util.List;
 
 public interface InterestRepository  extends JpaRepository<Interest, Long> {
 
-    // tag별 관심사 (자연, 지식, 문화)
-    List<Interest> findByTag(Tag tag);
-
-    // 카테고리별 관심사 (산 바다 산책...)
-    List<Interest> findByCategory(Category category);
-
     void deleteByUserId(long userId);
 
     // 관심사 삭제하기
