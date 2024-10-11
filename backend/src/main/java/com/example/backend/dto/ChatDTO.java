@@ -17,8 +17,6 @@ public class ChatDTO {
     private String sent; // 보낸 message
     private String received;
     private Long landmarkId;
-    private String tagId;
-    private String categoryId;
     private LocalDateTime date;
 
     public ChatDTO(ChatEntity entity) {
@@ -28,8 +26,6 @@ public class ChatDTO {
         this.received = entity.getReceived();
 
         this.landmarkId = entity.getLandmarkId();
-        this.tagId = entity.getTagId();
-        this.categoryId = entity.getCategoryId();
 
         this.date = entity.getDate();
     }
@@ -47,8 +43,6 @@ public class ChatDTO {
                 .sent(dto.getSent())
                 .received(dto.getReceived())
                 .landmarkId(dto.getLandmarkId())
-                .tagId(dto.getTagId())
-                .categoryId(dto.getCategoryId())
                 .date(dto.getDate())
                 .build();
     }
