@@ -153,7 +153,7 @@ public class ChatController {
     }
 
 
-    @Operation(summary = "[주제 pick (1) ] 관심사 질문 추천 API", description = "랜드마크의 category와 내가 저장한 관심사 중 일치하는 카테고리만 보여주는 API입니다!" )
+    @Operation(summary = "[주제 pick (1) ] 관심사 질문 추천 API", description = "관광지의 category와 내가 저장한 관심사 중 일치하는 카테고리만 보여주는 API입니다!" )
     // 주제 추천
     @GetMapping("/topic")
     public ResponseEntity<?> compareLandmarkCategories(@RequestParam("landmarkId") Long landmarkId, @RequestParam("userId") String userId) throws IOException {
@@ -161,7 +161,7 @@ public class ChatController {
         KakaoDto Kdto = kakaoService.getUserInfo(userId);
         Long id = Kdto.getId();
 
-        // 현재 랜드마크에서 Category를 추출
+        // 현재 관광지에서 Category를 추출
         Landmark landmark = landmarkRepository.findById(landmarkId)
                 .orElseThrow(() -> new IllegalArgumentException("Landmark not found"));
         List<String> landmarkCategories = landmark.getCategories().stream()
@@ -218,7 +218,7 @@ public class ChatController {
 
     // [/chatting]
     // 목록 - landmark 검색
-    @Operation(summary = "[/chatting] 챗봇 목록 검색 API", description = "대화한 챗봇 목록에서 관광지를 검색할 수 있는 API입니다! 랜드마크이름(title) RequestParam 입니다!")
+    @Operation(summary = "[/chatting] 챗봇 목록 검색 API", description = "대화한 챗봇 목록에서 관광지를 검색할 수 있는 API입니다! 관광지 이름(title) RequestParam 입니다!")
     @GetMapping("/list/search") // /chat/list/search?title={}
     public ResponseEntity<?> searchLandmarkList(@RequestParam("title") String title, @RequestParam("userId") String userId) {
 

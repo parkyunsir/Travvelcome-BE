@@ -102,10 +102,10 @@ public class InterestController {
         return ResponseEntity.ok("All interests deleted for user " + id);
     }
 
-    @Operation(summary = "관심사로 등록된 랜드마크 출력 API", description = "현재 등록된 관심사를 기반으로 랜드마크를 출력합니다. tag(Nature)로 검색 시, MOUNTAIN, " +
-            " BEACH_ISLAND, GARDEN, TRAIL, WATERFALL, DRIVE 중 관심사로 등록된 category에 해당하는 랜드마크가 출력됩니다.")
+    @Operation(summary = "[tag기반] 관심사로 등록된 관광지 출력 API", description = "현재 등록된 관심사를 기반으로 관광지를 출력합니다. tag(Nature)로 검색 시, MOUNTAIN, " +
+            " BEACH_ISLAND, GARDEN, TRAIL, WATERFALL, DRIVE 중 관심사로 등록된 category에 해당하는 관광지가 출력됩니다.")
     @GetMapping("/landmark")
-    // 관심사로 등록된 랜드마크 출력
+    // 관심사로 등록된 관광지 출력
     public ResponseEntity<?> getInterestLandmark(@RequestParam("userId") String userId, @RequestParam("tag") Tag tag) {
 
         KakaoDto Kdto = kakaoService.getUserInfo(userId);
@@ -128,4 +128,25 @@ public class InterestController {
 
         return ResponseEntity.ok().body(result);
     }
+
+    @Operation(summary = "[모든] 관심사로 등록된 관광지 출력 API", description = "현재 등록된 관심사를 기반으로 관광지를 출력합니다. tag(Nature)로 검색 시, MOUNTAIN, " +
+            " BEACH_ISLAND, GARDEN, TRAIL, WATERFALL, DRIVE 중 관심사로 등록된 category에 해당하는 관광지가 출력됩니다.")
+    @GetMapping("/landmark/all")
+    // 관심사로 등록된 관광지 출력
+    public ResponseEntity<?> getAllInterestLandmark(@RequestParam("userId") String userId) {
+
+        KakaoDto Kdto = kakaoService.getUserInfo(userId);
+        Long id = Kdto.getId();
+
+        // 나의 관심사 목록에서 Category를 추출
+        List<Interest> interests = interestService.getAllInterest(id);
+        List<Category> interestCategories = interests.stream()
+                .map(Interest::getCategory) // Category를 그대로 가져옴
+                .toList();
+
+        List<Landmark> result = landmarkRepository.findByCategories(interestCategories);
+
+        return ResponseEntity.ok().body(result);
+    }
+    
 }
