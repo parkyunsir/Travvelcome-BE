@@ -47,9 +47,8 @@ public class ChatService {
         Optional<String> title = landmarkRepository.findTitleById(lid); // id로 이름 출력.
 
         String ltitle = title.get();
-        String sent = "";
 
-        String response = getCompletion(sent, ltitle, lid, userId);
+        String response = getCompletion(entity.getSent(), ltitle, lid, userId);
         entity.setReceived(response);
         entity.setDate(LocalDateTime.now());
         entity.setUserId(userId);
