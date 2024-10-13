@@ -1,38 +1,43 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.KakaoTokenResponseDto;
-import com.example.backend.dto.KakaoUserDto;
+import com.example.backend.dto.KakaoDto;
 import com.example.backend.model.UsersEntity;
-import com.example.backend.repository.UsersRepository;
+import com.example.backend.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class KakaoService {
 
     private String clientId;
+    private String logoutRedirectUri;
     private final String KAUTH_TOKEN_URL_HOST ;
     private final String KAUTH_USER_URL_HOST;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    public KakaoService(@Value("${kakao.client.id}") String clientId) {
+    public KakaoService(@Value("${kakao.client.id}") String clientId,
+                        @Value("${kakao.logout.redirect.uri}") String logoutRedirectUri) {
         this.clientId = clientId;
-        KAUTH_TOKEN_URL_HOST = "https://kauth.kakao.com";
+        this.logoutRedirectUri = logoutRedirectUri;
+        KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
         KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
     }
 
@@ -60,9 +65,9 @@ public class KakaoService {
     }
 
     // 사용자 정보 (/v2/user/me)
-    public KakaoUserDto getUserInfo(String accessToken) {
+    public KakaoDto getUserInfo(String accessToken) {
 
-        KakaoUserDto userInfo = WebClient.create(KAUTH_USER_URL_HOST)
+        KakaoDto userInfo = WebClient.create(KAUTH_USER_URL_HOST)
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
@@ -74,7 +79,7 @@ public class KakaoService {
                 //TODO : Custom Exception
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
-                .bodyToMono(KakaoUserDto.class)
+                .bodyToMono(KakaoDto.class)
                 .block();
 
         log.info("ID ---> {} ", userInfo.getId());
@@ -82,10 +87,64 @@ public class KakaoService {
         return userInfo;
     }
 
-    // 사용자 정보 저장
-    @Transactional
-    public UsersEntity saveUserInfo(UsersEntity entity) { // 사용자 정보 저장하기
+    // 로그아웃
+    public String logout(String accessToken) {
 
-        return usersRepository.save(entity);
+        Long userId = WebClient.create(KAUTH_USER_URL_HOST)
+                .post()
+                .uri("/v1/user/logout")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        clientResponse -> Mono.error(new RuntimeException("Invalid Parameter: 4xx error")))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        clientResponse -> Mono.error(new RuntimeException("Internal Server Error: 5xx error")))
+                .bodyToMono(Long.class)
+                .block();
+
+        log.info("LOGOUT ID ---> {} ", userId);
+//        log.info("Email ---> {} ", userInfo.getKakaoAccount().getEmail()); // 현재 이메일은 null 값이다.
+
+        // 카카오 계정 세션 만료 처리
+        WebClient.create(KAUTH_TOKEN_URL_HOST)
+                .get()
+                .uri(uriBuilder -> uriBuilder.path("/oauth/logout")
+                        .queryParam("client_id", clientId)
+                        .queryParam("logout_redirect_uri", logoutRedirectUri)
+                        .build())
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        clientResponse -> Mono.error(new RuntimeException("Invalid Parameter for Account Logout: 4xx error")))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        clientResponse -> Mono.error(new RuntimeException("Internal Server Error for Account Logout: 5xx error")))
+                .toBodilessEntity()
+                .block();
+
+        return "로그아웃 되었습니다.";
+    }
+
+    // 계정 탈퇴
+    public String unlink(String accessToken) {
+
+        Long userId = WebClient.create(KAUTH_USER_URL_HOST)
+                .post()
+                .uri("/v1/user/unlink")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        clientResponse -> Mono.error(new RuntimeException("Invalid Parameter: 4xx error")))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        clientResponse -> Mono.error(new RuntimeException("Internal Server Error: 5xx error")))
+                .bodyToMono(Long.class)
+                .block();
+
+        log.info("UNLINK ID ---> {} ", userId);
+
+        return "계정 탙퇴 되었습니다.";
+    }
+
+
+    public UsersEntity saveUser(UsersEntity user) {
+        return userRepository.save(user);
     }
 }

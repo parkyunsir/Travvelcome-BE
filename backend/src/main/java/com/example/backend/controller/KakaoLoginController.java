@@ -1,73 +1,34 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.KakaoUserDto;
+import com.example.backend.dto.KakaoDto;
 import com.example.backend.model.UsersEntity;
-import com.example.backend.repository.UsersRepository;
 import com.example.backend.service.KakaoService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
-
-
-// 추후에 login.html 파일 지우고 리액트와 연결시키기
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequiredArgsConstructor
-@RequestMapping("")
+@RequestMapping("/login")
 public class KakaoLoginController {
 
-    @Autowired
-    private KakaoService kakaoService;
+    @Value("${kakao.client.id}")
+    private String client_id;
 
-    @Autowired
-    private UsersRepository usersRepository;
+    @Value("${kakao.redirect.uri}")
+    private String redirect_uri;
 
-    @GetMapping("/callback")
-    public ResponseEntity<?> callback(@RequestParam("code") String code) {
-        String accessToken = kakaoService.getAccessTokenFromKakao(code);
+    @GetMapping()
+    public String loginPage(Model model) {
+        String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id="+client_id+"&redirect_uri="+redirect_uri;
+        model.addAttribute("location", location);
 
-        KakaoUserDto userInfo = kakaoService.getUserInfo(accessToken);
-
-        UsersEntity entity = UsersEntity.builder()
-                .id(userInfo.getId())
-                .email(userInfo.getKakaoAccount().getEmail())
-                .nickname(userInfo.getKakaoAccount().getProfile().getNickName())
-                .thumbnailImageUrl(userInfo.getKakaoAccount().getProfile().getThumbnailImageUrl())
-                .profileImageUrl(userInfo.getKakaoAccount().getProfile().getProfileImageUrl())
-                .build();
-
-        UsersEntity savedEntity = kakaoService.saveUserInfo(entity);
-
-        // User 로그인, 또는 회원가입 로직 추가
-        return ResponseEntity.ok().body(savedEntity); // 정상적으로 출력됨...
-    }
-
-    @GetMapping("/user") // 사용자 정보 출력
-    public ResponseEntity<?> showUser(@AuthenticationPrincipal KakaoUserDto dto) {
-
-        if (dto == null){
-            log.info("dto is null: ");
-        }
-
-        Long id = KakaoUserDto.toEntity(dto).getId();
-
-
-        // Optional로 반환받고, get() 메서드로 UsersEntity 가져오기
-        Optional<UsersEntity> optionalUser = usersRepository.findById(id);
-
-        if (optionalUser.isPresent()) {
-            UsersEntity usersEntity = optionalUser.get();
-            log.info(String.valueOf(usersEntity.getId()));
-            return ResponseEntity.ok().body(usersEntity);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
+        return "login";
     }
 }

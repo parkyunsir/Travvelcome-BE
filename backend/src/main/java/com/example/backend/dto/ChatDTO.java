@@ -14,12 +14,11 @@ import java.time.LocalDateTime;
 @Data
 public class ChatDTO {
     private String chatId;
-    private String sent;
+    private String sent; // 보낸 message
     private String received;
     private Long landmarkId;
-    private String tagId;
-    private String categoryId;
     private LocalDateTime date;
+    private Long userId;
 
     public ChatDTO(ChatEntity entity) {
         this.chatId = entity.getChatId();
@@ -28,10 +27,16 @@ public class ChatDTO {
         this.received = entity.getReceived();
 
         this.landmarkId = entity.getLandmarkId();
-        this.tagId = entity.getTagId();
-        this.categoryId = entity.getCategoryId();
-
         this.date = entity.getDate();
+        this.userId = entity.getUserId();
+    }
+
+    public ChatDTO(String sent, String received, Long landmarkId, String chatId, Long userId) {
+        this.sent = sent;
+        this.received = received;
+        this.landmarkId = landmarkId;
+        this.chatId = chatId;
+        this.userId = userId;
     }
 
     public static ChatEntity toEntity(final ChatDTO dto) {
@@ -40,9 +45,8 @@ public class ChatDTO {
                 .sent(dto.getSent())
                 .received(dto.getReceived())
                 .landmarkId(dto.getLandmarkId())
-                .tagId(dto.getTagId())
-                .categoryId(dto.getCategoryId())
                 .date(dto.getDate())
+                .userId(dto.getUserId())
                 .build();
     }
 }

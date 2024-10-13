@@ -27,14 +27,8 @@ public class ChatEntity {
     // 랜드마크
     private Long landmarkId;
 
-    // 태그
-    private String tagId;
-
-    // 카테고리
-    private String categoryId;
-
-    // userId
-    // private String userId;
+     // userId
+     private Long userId;
 
     private String sent; //내가 보낸 message
     private String received; //받은 message(gpt 답변)

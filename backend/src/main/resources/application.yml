@@ -5,10 +5,13 @@ spring:
         registration:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
-#            client-secret: ${KAKAO_CLIENT_SECRET}  # 필요하다면 추가
-            scope: profile, email
-            redirect-uri: ${KAKAO_REDIRECT_URI}  # redirect URI
+            client-authentication-method: post
             authorization-grant-type: authorization_code
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            scope:
+              - profile_nickname
+#              - account_email
+            client-name: Kakao
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
